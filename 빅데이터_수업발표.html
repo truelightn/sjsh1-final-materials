@@ -851,7 +851,7 @@
     <div class="use-grid">
       <div class="use-card">
         <div class="ui">🛍️</div>
-        <div class="ut">세계(유통) 분야</div>
+        <div class="ut">유통 분야</div>
         <p>고객 구매 패턴 분석으로 맞춤형 상품 추천·재고 최적화</p>
       </div>
       <div class="use-card">
@@ -1204,7 +1204,7 @@
 
 <!-- 내비게이션 -->
 <div class="progress-bar" id="pbar"></div>
-<div class="slide-num" id="slideNum">1 / 14</div>
+<div class="slide-num" id="slideNum">1 / 13</div>
 <div class="nav-hint">
   <button class="nav-btn" onclick="go(-1)">◀</button>
   <kbd>←</kbd><span>이전</span> / <span>다음</span><kbd>→</kbd>
@@ -1234,8 +1234,9 @@ document.addEventListener('keydown', e=>{
   if(e.key==='ArrowLeft' ||e.key==='ArrowUp')   go(-1);
 });
 
-/* ── 초기 진행바 ── */
+/* ── 초기 진행바 & 슬라이드 번호 ── */
 document.getElementById('pbar').style.width = (1/total*100)+'%';
+document.getElementById('slideNum').textContent = '1 / '+total;
 
 /* ── 3V 카드 토글 ── */
 function toggleV(n){
@@ -1601,8 +1602,8 @@ const exData = {
     ['부산','332','770','4,312'],
     ['인천','295','1,063','2,775'],
     ['대구','237','883','2,685'],
-    ['광주','142','501','2,834'],
     ['대전','145','540','2,685'],
+    ['광주','142','501','2,834'],
   ]
 };
 
@@ -1776,7 +1777,7 @@ function buildBarChartSVG(){
   return svg;
 }
 
-selEx(0);
+if(document.getElementById('exRibbon')) selEx(0);
 
 /* ── 독립변수·종속변수 ── */
 const varExamples = [
