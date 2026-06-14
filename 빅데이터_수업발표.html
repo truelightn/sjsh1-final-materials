@@ -1,0 +1,1867 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>빅데이터 - 고등학교 정보 수업</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;900&family=Gmarket+Sans:wght@300;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f0fdf4;
+    --surface: #ffffff;
+    --primary: #16a34a;
+    --primary-light: #dcfce7;
+    --teal: #0d9488;
+    --teal-light: #ccfbf1;
+    --blue: #2563eb;
+    --blue-light: #dbeafe;
+    --red: #ef4444;
+    --red-light: #fee2e2;
+    --gold: #d97706;
+    --gold-light: #fef3c7;
+    --purple: #7c3aed;
+    --purple-light: #ede9fe;
+    --text: #1e293b;
+    --text-sub: #64748b;
+    --border: #e2e8f0;
+    --shadow: 0 4px 24px rgba(30,41,59,.09);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow: hidden;
+    height: 100vh; width: 100vw;
+    user-select: none;
+  }
+
+  .slideshow { width:100%; height:100%; position:relative; }
+
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    padding: 36px 60px;
+    opacity: 0; pointer-events: none;
+    transform: scale(.94);
+    transition: opacity .4s ease, transform .4s ease;
+    overflow-y: auto;
+  }
+  .slide.active { opacity:1; pointer-events:all; transform:scale(1); }
+  .slide.exit   { opacity:0; transform:scale(1.04); }
+
+  .progress-bar {
+    position:fixed; bottom:0; left:0; height:5px;
+    background: linear-gradient(90deg, var(--primary), #4ade80);
+    transition: width .35s ease; z-index:100;
+    border-radius: 0 4px 4px 0;
+  }
+  .slide-num {
+    position:fixed; bottom:14px; right:24px;
+    font-size:.95rem; color:var(--text-sub);
+    font-family:'Gmarket Sans',sans-serif; z-index:100;
+    font-weight:500;
+  }
+  .nav-hint {
+    position:fixed; bottom:14px; left:50%;
+    transform:translateX(-50%);
+    font-size:.85rem; color:var(--text-sub);
+    z-index:100; display:flex; gap:10px; align-items:center;
+  }
+  .nav-hint kbd {
+    background: var(--surface); border:1px solid var(--border);
+    border-radius:6px; padding:2px 10px; font-size:.8rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+  }
+  .nav-btn {
+    background: var(--surface); border:1px solid var(--border);
+    border-radius:6px; padding:3px 14px; font-size:.85rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+    cursor:pointer; font-family:'Noto Sans KR',sans-serif;
+    color:var(--text); transition:background .15s, box-shadow .15s;
+  }
+  .nav-btn:hover { background:var(--primary-light); box-shadow:0 2px 8px rgba(22,163,74,.15); }
+
+  .tag {
+    font-family:'Gmarket Sans',sans-serif;
+    font-size:1rem; font-weight:700;
+    letter-spacing:2px; color:var(--primary);
+    background:var(--primary-light);
+    padding:5px 18px; border-radius:50px;
+    margin-bottom:14px; display:inline-block;
+  }
+
+  h1 {
+    font-family:'Gmarket Sans',sans-serif;
+    font-size:clamp(2.8rem,5.5vw,4.6rem);
+    font-weight:700; color:var(--text);
+    text-align:center; line-height:1.2;
+    margin-bottom:14px;
+  }
+  h1 span { color:var(--primary); }
+
+  h2 {
+    font-family:'Gmarket Sans',sans-serif;
+    font-size:clamp(1.8rem,3.2vw,2.6rem);
+    font-weight:700; color:var(--text);
+    text-align:center; margin-bottom:18px;
+  }
+  h2 span { color:var(--primary); }
+
+  h3 {
+    font-family:'Gmarket Sans',sans-serif;
+    font-size:1.35rem; font-weight:700;
+    color:var(--text); margin-bottom:10px;
+  }
+
+  p, li {
+    font-size:clamp(1.1rem,1.6vw,1.3rem);
+    line-height:1.75; color:var(--text-sub);
+  }
+
+  .divider {
+    width:56px; height:4px;
+    background: linear-gradient(90deg,var(--primary),#4ade80);
+    border-radius:4px; margin:0 auto 18px;
+  }
+
+  .card {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:16px; padding:20px 22px;
+    box-shadow:var(--shadow);
+  }
+
+  .card-grid { display:grid; gap:14px; width:100%; }
+  .cols-2 { grid-template-columns:repeat(2,1fr); }
+  .cols-3 { grid-template-columns:repeat(3,1fr); }
+
+  .badge {
+    display:inline-block; padding:3px 12px;
+    border-radius:50px; font-size:.8rem; font-weight:700;
+    margin-bottom:8px; letter-spacing:.5px;
+  }
+  .b-green  { background:var(--primary-light); color:var(--primary); }
+  .b-teal   { background:var(--teal-light);    color:var(--teal); }
+  .b-blue   { background:var(--blue-light);    color:var(--blue); }
+  .b-red    { background:var(--red-light);     color:var(--red); }
+  .b-gold   { background:var(--gold-light);    color:var(--gold); }
+  .b-purple { background:var(--purple-light);  color:var(--purple); }
+
+  .flow { display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:center; }
+  .flow-box {
+    background:var(--surface); border:2px solid var(--primary);
+    border-radius:12px; padding:12px 18px;
+    font-size:1.05rem; font-weight:700;
+    text-align:center; color:var(--text);
+    min-width:100px; box-shadow:var(--shadow);
+  }
+  .flow-arrow { font-size:1.3rem; color:var(--primary); font-weight:900; }
+
+  .info-box {
+    background:var(--primary-light);
+    border-left:5px solid var(--primary);
+    border-radius:0 12px 12px 0;
+    padding:14px 20px;
+    font-size:1.05rem; line-height:1.65;
+    width:100%; max-width:900px;
+    color:var(--text);
+  }
+
+  .num-list { list-style:none; width:100%; max-width:860px; }
+  .num-list li {
+    display:flex; align-items:flex-start;
+    gap:14px; margin-bottom:13px; font-size:1.22rem;
+  }
+  .num-list li .dot {
+    min-width:32px; height:32px;
+    background:var(--primary); color:#fff;
+    border-radius:50%; display:flex;
+    align-items:center; justify-content:center;
+    font-weight:800; font-size:.9rem; flex-shrink:0;
+  }
+
+  table { width:100%; max-width:860px; border-collapse:collapse; font-size:1.08rem; }
+  th {
+    background:var(--primary); color:#fff;
+    padding:12px 18px; text-align:center; font-size:1.05rem;
+    font-family:'Gmarket Sans',sans-serif;
+  }
+  td {
+    padding:11px 18px; border-bottom:1px solid var(--border);
+    text-align:center; color:var(--text-sub);
+  }
+  tr:hover td { background:var(--primary-light); }
+  td:first-child { color:var(--text); font-weight:700; }
+
+  #s0 {
+    background: linear-gradient(145deg, #f0fdf4 0%, #f0fdf4 60%, #ecfdf5 100%);
+  }
+  .cover-sub {
+    font-family:'Gmarket Sans',sans-serif;
+    font-size:1.05rem; color:var(--text-sub); margin-top:4px; text-align:center;
+  }
+
+  .icon-lg { font-size:1.9rem; margin-bottom:6px; display:block; text-align:center; }
+
+  .btn {
+    font-family: 'Gmarket Sans', sans-serif;
+    font-size: .95rem; font-weight: 700;
+    padding: 9px 22px;
+    border: none; border-radius: 50px;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+    box-shadow: var(--shadow);
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,.12); }
+  .btn:active { transform: translateY(0); }
+  .btn:disabled { opacity: .4; cursor: not-allowed; transform:none; }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+
+  /* 3V 카드 애니메이션 */
+  .v-card {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 18px;
+    padding: 22px 18px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    transition: border-color .3s, box-shadow .3s, transform .3s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .v-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    opacity: 0;
+    transition: opacity .3s;
+  }
+  .v-card.v1::before { background: linear-gradient(135deg, #dcfce7, #f0fdf4); }
+  .v-card.v2::before { background: linear-gradient(135deg, #dbeafe, #eff6ff); }
+  .v-card.v3::before { background: linear-gradient(135deg, #fef3c7, #fffbeb); }
+  .v-card:hover::before, .v-card.active::before { opacity: 1; }
+  .v-card:hover, .v-card.active { transform: translateY(-4px); }
+  .v-card.v1:hover, .v-card.v1.active { border-color: var(--primary); box-shadow: 0 8px 28px rgba(22,163,74,.18); }
+  .v-card.v2:hover, .v-card.v2.active { border-color: var(--blue); box-shadow: 0 8px 28px rgba(37,99,235,.18); }
+  .v-card.v3:hover, .v-card.v3.active { border-color: var(--gold); box-shadow: 0 8px 28px rgba(217,119,6,.18); }
+  .v-card * { position: relative; z-index: 1; }
+  .v-num {
+    font-family: 'Gmarket Sans', sans-serif;
+    font-size: 3rem; font-weight: 700; line-height: 1;
+    margin-bottom: 4px;
+  }
+  .v-card.v1 .v-num { color: var(--primary); }
+  .v-card.v2 .v-num { color: var(--blue); }
+  .v-card.v3 .v-num { color: var(--gold); }
+  .v-title { font-family: 'Gmarket Sans', sans-serif; font-size: 1.2rem; font-weight: 700; margin-bottom: 6px; }
+  .v-sub { font-size: .88rem; color: var(--text-sub); line-height: 1.5; }
+  .v-detail {
+    max-height: 0; overflow: hidden;
+    transition: max-height .45s ease, padding .3s;
+    font-size: .85rem; color: var(--text-sub); line-height: 1.55;
+    padding: 0 4px;
+  }
+  .v-card.active .v-detail { max-height: 100px; padding: 10px 4px 0; }
+
+  /* 활용 분야 아이콘 그리드 */
+  .use-grid {
+    display:grid; grid-template-columns:repeat(3,1fr);
+    gap:12px; width:100%; max-width:1040px;
+  }
+  .use-card {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:14px; padding:16px;
+    text-align:center; box-shadow:var(--shadow);
+    transition: transform .2s, box-shadow .2s;
+    cursor: pointer;
+  }
+  .use-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+  .use-card .ui { font-size:2.2rem; margin-bottom:6px; }
+  .use-card .ut { font-size:1.1rem; font-weight:700; color:var(--primary); margin-bottom:5px; font-family:'Gmarket Sans',sans-serif; }
+  .use-card p { font-size:.95rem; color:var(--text-sub); line-height:1.5; }
+
+  /* 분석 과정 플로우 */
+  .process-flow {
+    display: flex; align-items: stretch;
+    gap: 0; width: 100%; max-width: 980px;
+    margin-bottom: 16px;
+  }
+  .pf-step {
+    flex: 1;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 0;
+    padding: 14px 10px;
+    text-align: center;
+    position: relative;
+    transition: border-color .3s, background .3s;
+    cursor: pointer;
+  }
+  .pf-step:first-child { border-radius: 14px 0 0 14px; }
+  .pf-step:last-child  { border-radius: 0 14px 14px 0; }
+  .pf-step.active { background: var(--primary-light); border-color: var(--primary); }
+  .pf-step::after {
+    content: '▶';
+    position: absolute; right: -14px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--primary); font-size: .85rem;
+    z-index: 2;
+  }
+  .pf-step:last-child::after { display: none; }
+  .pf-icon { font-size: 1.5rem; margin-bottom: 4px; }
+  .pf-label { font-family: 'Gmarket Sans', sans-serif; font-size: .98rem; font-weight: 700; color: var(--text); }
+  .pf-num {
+    position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+    background: var(--primary); color: #fff;
+    border-radius: 50%; width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .75rem; font-weight: 800;
+    font-family: 'Gmarket Sans', sans-serif;
+  }
+  .pf-step.active .pf-num { background: var(--teal); }
+
+  .pf-desc {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 16px 22px;
+    width: 100%; max-width: 980px;
+    box-shadow: var(--shadow);
+    min-height: 80px;
+    transition: all .3s;
+  }
+  .pf-desc h3 { color: var(--primary); margin-bottom: 6px; }
+  .pf-desc p  { font-size: .95rem; }
+
+  /* 상관 분석 인터랙티브 */
+  .corr-canvas-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: var(--shadow);
+  }
+  canvas { display: block; }
+
+  /* 시각화 차트 종류 */
+  /* 시각화 탭 */
+  .chart-tabs { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; justify-content: center; }
+  .chart-tab {
+    padding: 9px 22px; border-radius: 50px; cursor: pointer;
+    font-family: 'Gmarket Sans', sans-serif; font-size: .98rem; font-weight: 700;
+    border: 2px solid var(--border); background: var(--surface); color: var(--text);
+    transition: all .22s; box-shadow: var(--shadow);
+  }
+  .chart-tab.sel  { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 4px 14px rgba(22,163,74,.25); }
+  .chart-tab:hover:not(.sel) { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+
+  /* 차트 영역 */
+  .chart-area {
+    display: flex; gap: 18px; align-items: stretch;
+    width: 100%; max-width: 980px;
+  }
+  .chart-canvas-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 16px 18px; box-shadow: var(--shadow);
+    flex: 1.5; display: flex; align-items: center; justify-content: center;
+  }
+  .chart-canvas-wrap canvas { display: block; max-width: 100%; }
+  .chart-info-panel {
+    flex: 1; display: flex; flex-direction: column; gap: 10px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 18px 20px; box-shadow: var(--shadow);
+  }
+  .chart-info-panel h3 { font-size: 1.15rem; color: var(--primary); margin-bottom: 6px; }
+  .chart-info-panel p  { font-size: .97rem; color: var(--text-sub); line-height: 1.65; }
+  .chart-use-tag {
+    display: inline-block; padding: 4px 14px; border-radius: 50px;
+    font-family: 'Gmarket Sans', sans-serif; font-size: .82rem; font-weight: 700;
+    background: var(--primary-light); color: var(--primary); margin-top: 4px;
+  }
+  .chart-example-list { list-style: none; margin-top: 8px; }
+  .chart-example-list li {
+    font-size: .92rem; color: var(--text-sub); padding: 3px 0;
+    display: flex; gap: 8px; align-items: flex-start;
+  }
+  .chart-example-list li::before { content: '•'; color: var(--primary); font-weight: 900; flex-shrink: 0; }
+
+  /* 데이터 수집 슬라이드 */
+  .collect-grid {
+    display: grid; grid-template-columns: repeat(2,1fr);
+    gap: 14px; width: 100%; max-width: 860px;
+  }
+  .coll-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 16px 18px;
+    box-shadow: var(--shadow); display: flex; gap: 12px; align-items: flex-start;
+  }
+  .coll-icon { font-size: 1.6rem; flex-shrink: 0; margin-top: 2px; }
+  .coll-title { font-family: 'Gmarket Sans', sans-serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 5px; }
+
+  /* 데이터 분석 도구 비교 */
+  .tool-compare {
+    display: grid; grid-template-columns: repeat(3,1fr);
+    gap: 14px; width: 100%; max-width: 900px;
+  }
+  .tool-card {
+    background: var(--surface); border: 2px solid var(--border);
+    border-radius: 16px; padding: 18px 14px;
+    text-align: center; box-shadow: var(--shadow);
+    transition: border-color .2s, transform .2s;
+  }
+  .tool-card:hover { transform: translateY(-3px); }
+  .tool-card.highlight { border-color: var(--primary); }
+  .tool-icon { font-size: 2.2rem; margin-bottom: 8px; }
+  .tool-name { font-family: 'Gmarket Sans', sans-serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; }
+  .tool-pros { list-style: none; text-align: left; }
+  .tool-pros li { font-size: .95rem; color: var(--text-sub); padding: 4px 0; display: flex; gap: 6px; }
+  .tool-pros li::before { content: '✓'; color: var(--primary); font-weight: 700; flex-shrink: 0; }
+
+  /* 상관계수 인터랙티브 */
+  .corr-slider-wrap {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 12px; width: 100%; max-width: 600px;
+  }
+  .corr-slider-wrap label { font-family: 'Gmarket Sans', sans-serif; font-size: .9rem; font-weight: 700; white-space: nowrap; min-width: 80px; }
+  input[type=range] {
+    flex: 1; accent-color: var(--primary);
+    height: 6px; border-radius: 3px;
+  }
+  .corr-val {
+    font-family: 'Courier New', monospace; font-weight: 700;
+    font-size: 1rem; min-width: 52px; text-align: center;
+    padding: 4px 8px; border-radius: 8px;
+    background: var(--primary-light); color: var(--primary);
+  }
+  .corr-interp {
+    font-size: .9rem; font-weight: 700; text-align: center;
+    padding: 8px 20px; border-radius: 50px;
+    margin-top: 6px; transition: all .3s;
+  }
+
+  /* 분석 과정 상세 패널 */
+  .proc-detail {
+    display: flex; gap: 18px; width: 100%; max-width: 980px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 18px; padding: 20px 22px; box-shadow: var(--shadow);
+    min-height: 200px;
+  }
+  .proc-left {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 10px; min-width: 150px; max-width: 160px;
+    border-right: 1px solid var(--border); padding-right: 18px;
+  }
+  .proc-icon-big { font-size: 2.8rem; }
+  .proc-step-title {
+    font-family: 'Gmarket Sans', sans-serif; font-size: 1.05rem;
+    font-weight: 700; color: var(--primary); text-align: center;
+  }
+  .proc-keyword-grid { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+  .proc-kw {
+    font-size: .82rem; font-weight: 700; text-align: center;
+    padding: 5px 8px; border-radius: 8px;
+    background: var(--primary-light); color: var(--primary);
+    font-family: 'Gmarket Sans', sans-serif;
+  }
+  .proc-kw.alt { background: var(--teal-light); color: var(--teal); }
+  .proc-kw.alt2 { background: var(--blue-light); color: var(--blue); }
+  .proc-kw.alt3 { background: var(--gold-light); color: var(--gold); }
+
+  .proc-right { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+  .proc-desc-text { font-size: 1rem; color: var(--text); line-height: 1.7; font-weight: 600; }
+  .proc-sections { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .proc-section {
+    background: var(--bg); border-radius: 10px; padding: 10px 12px;
+    border-left: 3px solid var(--primary);
+  }
+  .proc-section.t2 { border-color: var(--teal); }
+  .proc-section.t3 { border-color: var(--blue); }
+  .proc-section-label {
+    font-family: 'Gmarket Sans', sans-serif; font-size: .78rem;
+    font-weight: 700; color: var(--text-sub); margin-bottom: 4px;
+    letter-spacing: .04em; text-transform: uppercase;
+  }
+  .proc-section-items { display: flex; flex-wrap: wrap; gap: 5px; }
+  .proc-chip {
+    font-size: .8rem; padding: 3px 10px; border-radius: 50px;
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text); font-weight: 600;
+  }
+  .proc-example-box {
+    background: linear-gradient(135deg, var(--primary-light), var(--teal-light));
+    border-radius: 10px; padding: 10px 14px;
+    font-size: .93rem; color: var(--text); line-height: 1.6;
+  }
+  .proc-example-box strong { color: var(--primary); }
+
+  /* ── 엑셀 실습 슬라이드 ── */
+  .ex-tabs {
+    display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: nowrap;
+  }
+  .ex-tab {
+    display: flex; align-items: center; gap: 7px;
+    padding: 8px 16px; border-radius: 8px 8px 0 0; cursor: pointer;
+    font-family: 'Gmarket Sans', sans-serif; font-size: .88rem; font-weight: 700;
+    border: 2px solid var(--border); border-bottom: none;
+    background: var(--bg); color: var(--text-sub);
+    transition: all .2s;
+  }
+  .ex-tab.sel  { background: var(--surface); color: var(--primary); border-color: var(--primary); }
+  .ex-tab:hover:not(.sel) { color: var(--text); background: var(--surface); }
+  .ex-tab-num {
+    width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0;
+    background: var(--border); color: var(--text-sub);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .75rem; font-weight: 800;
+  }
+  .ex-tab.sel .ex-tab-num { background: var(--primary); color: #fff; }
+
+  .ex-body {
+    display: flex; gap: 16px; width: 100%; max-width: 1000px;
+    align-items: flex-start;
+  }
+  .ex-sheet-wrap {
+    flex: 1.5; border: 2px solid var(--primary);
+    border-radius: 0 12px 12px 12px; overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .ex-ribbon {
+    background: #217346; padding: 7px 14px;
+    display: flex; gap: 8px; align-items: center;
+    font-size: .78rem; font-weight: 700; color: #fff;
+    min-height: 32px;
+  }
+  .ex-ribbon-btn {
+    background: rgba(255,255,255,.18); border-radius: 5px;
+    padding: 3px 10px; cursor: default; font-size: .76rem;
+    border: 1px solid rgba(255,255,255,.3);
+  }
+  .ex-ribbon-btn.active { background: rgba(255,255,255,.38); border-color: #fff; }
+  .ex-formula-bar {
+    background: #f3f3f3; border-bottom: 1px solid #d0d0d0;
+    padding: 4px 10px; display: flex; gap: 10px; align-items: center;
+    font-size: .82rem;
+  }
+  .ex-cell-ref {
+    background: #fff; border: 1px solid #bbb;
+    padding: 2px 8px; border-radius: 3px; font-weight: 700;
+    font-family: 'Courier New', monospace; min-width: 46px; text-align: center;
+    font-size: .8rem; color: #333;
+  }
+  .ex-formula-text {
+    font-family: 'Courier New', monospace; font-size: .82rem;
+    color: #333; flex: 1;
+  }
+  .ex-sheet {
+    background: #fff; overflow: auto;
+  }
+  /* 엑셀처럼 보이는 테이블 */
+  .xs-table { border-collapse: collapse; width: 100%; font-size: .82rem; }
+  .xs-table th, .xs-table td {
+    border: 1px solid #d0d0d0; padding: 5px 10px;
+    white-space: nowrap; text-align: center;
+    font-family: 'Noto Sans KR', sans-serif; font-size: .82rem;
+  }
+  /* 행 번호 열 */
+  .xs-rownum {
+    background: #f3f3f3; color: #888; font-size: .75rem;
+    min-width: 30px; text-align: center; border: 1px solid #d0d0d0;
+  }
+  /* 열 헤더 */
+  .xs-colhdr {
+    background: #f3f3f3; color: #555; font-weight: 700;
+    font-size: .76rem; text-align: center; border: 1px solid #d0d0d0;
+    padding: 4px 10px;
+  }
+  /* 헤더 행 (데이터 타이틀) */
+  .xs-hdr { background: #217346 !important; color: #fff !important; font-weight: 700; }
+  /* 선택된 셀 */
+  .xs-sel { outline: 2px solid #1565c0; outline-offset: -1px; background: #e3f2fd !important; }
+  /* 조건부 서식 색상 */
+  .xs-hi1 { background: #c6efce !important; color: #276221 !important; font-weight: 700; }
+  .xs-hi2 { background: #ffeb9c !important; color: #9c6500 !important; }
+  .xs-hi3 { background: #ffc7ce !important; color: #9c0006 !important; }
+  /* 데이터 막대 셀 */
+  .xs-bar-cell { position: relative; }
+  .xs-bar { position: absolute; left: 0; top: 0; bottom: 0; background: rgba(33,115,70,.25); border-right: 2px solid #217346; pointer-events: none; }
+  /* 차트 프리뷰 (SVG) */
+  .ex-chart-preview { padding: 12px; background: #fff; }
+  /* CORREL 수식 하이라이트 */
+  .xs-formula { color: #0070c0; font-weight: 700; font-family: 'Courier New', monospace; }
+
+  /* 오른쪽 설명 패널 */
+  .ex-info {
+    flex: 1; display: flex; flex-direction: column; gap: 10px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px 18px; box-shadow: var(--shadow);
+  }
+  .ex-step-title {
+    font-family: 'Gmarket Sans', sans-serif; font-size: 1.1rem;
+    font-weight: 700; color: var(--primary);
+  }
+  .ex-step-desc { font-size: .95rem; color: var(--text-sub); line-height: 1.65; }
+  .ex-how {
+    background: var(--bg); border-radius: 10px; padding: 10px 12px;
+    border-left: 3px solid var(--primary);
+  }
+  .ex-how-title { font-family: 'Gmarket Sans', sans-serif; font-size: .78rem; font-weight: 700; color: var(--text-sub); margin-bottom: 6px; letter-spacing: .05em; }
+  .ex-how-step { font-size: .88rem; color: var(--text); display: flex; align-items: flex-start; gap: 8px; margin-bottom: 5px; }
+  .ex-how-step .sn {
+    min-width: 20px; height: 20px; border-radius: 50%;
+    background: var(--primary); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .7rem; font-weight: 800; flex-shrink: 0; margin-top: 1px;
+  }
+  .ex-tip {
+    background: var(--gold-light); border-radius: 10px; padding: 9px 12px;
+    font-size: .85rem; color: var(--text); line-height: 1.55;
+    border-left: 3px solid var(--gold);
+  }
+  .ex-tip strong { color: var(--gold); }
+
+  /* ── 독립변수·종속변수 슬라이드 ── */
+  .var-layout {
+    display: flex; gap: 22px; width: 100%; max-width: 980px;
+    align-items: flex-start;
+  }
+  .var-defs {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 0; min-width: 230px;
+  }
+  .var-card {
+    background: var(--surface); border-radius: 16px;
+    padding: 18px 20px; box-shadow: var(--shadow);
+    width: 100%; border: 2px solid;
+  }
+  .var-card.ind { border-color: var(--primary); }
+  .var-card.dep { border-color: var(--teal); }
+
+  .var-badge {
+    display: inline-block; padding: 3px 14px; border-radius: 50px;
+    font-family: 'Gmarket Sans', sans-serif; font-size: .82rem; font-weight: 700;
+    background: var(--primary-light); color: var(--primary); margin-bottom: 6px;
+  }
+  .var-badge.dep { background: var(--teal-light); color: var(--teal); }
+  .var-card-title {
+    font-family: 'Gmarket Sans', sans-serif; font-size: .85rem;
+    color: var(--text-sub); margin-bottom: 8px; font-style: italic;
+  }
+  .var-card-desc { font-size: .95rem; line-height: 1.65; color: var(--text); }
+  .var-also {
+    margin-top: 8px; font-size: .78rem; font-weight: 700;
+    color: var(--primary); background: var(--primary-light);
+    border-radius: 6px; padding: 4px 10px; display: inline-block;
+  }
+  .var-also.dep { color: var(--teal); background: var(--teal-light); }
+  .var-arrow-vert {
+    font-family: 'Gmarket Sans', sans-serif; font-size: .9rem; font-weight: 700;
+    color: var(--primary); padding: 8px 0; text-align: center;
+    display: flex; align-items: center; gap: 6px; justify-content: center;
+    width: 100%;
+  }
+
+  /* 예시 패널 */
+  .var-examples {
+    flex: 1; display: flex; flex-direction: column; gap: 10px;
+  }
+  .var-ex-title {
+    font-family: 'Gmarket Sans', sans-serif; font-size: .9rem;
+    font-weight: 700; color: var(--text-sub);
+  }
+  .var-ex-list { display: flex; flex-direction: column; gap: 6px; }
+  .var-ex-item {
+    padding: 10px 16px; border-radius: 10px; cursor: pointer;
+    border: 2px solid var(--border); background: var(--surface);
+    font-size: .95rem; font-weight: 600; color: var(--text-sub);
+    transition: all .2s;
+  }
+  .var-ex-item:hover { border-color: var(--primary); color: var(--text); background: var(--primary-light); }
+  .var-ex-item.sel  { border-color: var(--primary); background: var(--primary-light); color: var(--primary); font-weight: 700; }
+
+  .var-ex-detail {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 14px 18px; box-shadow: var(--shadow);
+    min-height: 80px;
+  }
+  .var-ex-flow {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 10px; flex-wrap: wrap;
+  }
+  .var-ex-box {
+    padding: 9px 18px; border-radius: 10px;
+    font-family: 'Gmarket Sans', sans-serif; font-size: 1rem; font-weight: 700;
+    text-align: center; box-shadow: var(--shadow);
+  }
+  .var-ex-box.x { background: var(--primary-light); color: var(--primary); border: 2px solid var(--primary); }
+  .var-ex-box.y { background: var(--teal-light);    color: var(--teal);    border: 2px solid var(--teal); }
+  .var-ex-arrow { font-size: 1.4rem; color: var(--text-sub); font-weight: 900; }
+  .var-ex-label {
+    font-size: .72rem; font-weight: 700; margin-top: 4px; text-align: center;
+    letter-spacing: .04em;
+  }
+  .var-ex-label.x { color: var(--primary); }
+  .var-ex-label.y { color: var(--teal); }
+  .var-ex-explain { font-size: .92rem; color: var(--text-sub); line-height: 1.65; }
+
+  .var-note {
+    background: var(--gold-light); border-left: 4px solid var(--gold);
+    border-radius: 0 10px 10px 0; padding: 10px 14px;
+    font-size: .9rem; color: var(--text); line-height: 1.6;
+  }
+
+  /* 피라미드 다이어그램 (데이터 처리 단계) */
+  .pyramid { display: flex; flex-direction: column; align-items: center; gap: 0; width: 100%; max-width: 600px; }
+  .pyr-row {
+    display: flex; justify-content: center; align-items: center;
+    width: 100%; margin-bottom: 3px;
+  }
+  .pyr-block {
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 8px; font-family: 'Gmarket Sans', sans-serif;
+    font-size: .95rem; font-weight: 700; color: #fff;
+    padding: 10px 20px; min-height: 42px;
+    transition: transform .2s, box-shadow .2s;
+    cursor: default;
+  }
+  .pyr-block:hover { transform: scaleX(1.02); box-shadow: 0 4px 14px rgba(0,0,0,.15); }
+
+  /* 반응형 */
+  @media(max-width:860px){
+    .cols-3,.use-grid,.chart-types{ grid-template-columns:repeat(2,1fr); }
+    .cols-2,.collect-grid,.tool-compare{ grid-template-columns:1fr; }
+    .slide{ padding:24px 20px; }
+    .process-flow { flex-direction: column; }
+    .pf-step { border-radius: 10px !important; }
+    .pf-step::after { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="slideshow" id="deck">
+
+  <!-- ─────────────────────────────── 0. 표지 ─────────────────────────────── -->
+  <div class="slide active" id="s0">
+    <div class="tag">03. 빅데이터 · II. 데이터</div>
+    <h1><span>빅데이터</span>의 이해와 활용</h1>
+    <p class="cover-sub">세종 과학 고등학교 정보 수업</p>
+    <div class="divider" style="margin-top:18px;"></div>
+    <div class="flow" style="margin-top:24px;">
+      <div class="flow-box">📦 수집</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box" style="border-color:var(--teal);color:var(--teal);">⚙️ 분석</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box" style="border-color:var(--blue);color:var(--blue);">📊 시각화</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box" style="border-color:var(--gold);color:var(--gold);">💡 의사결정</div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────── 1. 학습 목표 ─────────────────────────────── -->
+  <div class="slide" id="s1">
+    <div class="tag">학습 목표</div>
+    <h2>이번 수업에서 <span>배울 내용</span></h2>
+    <div class="divider"></div>
+    <ul class="num-list">
+      <li><span class="dot">1</span><span>빅데이터의 <strong>개념</strong>과 3V 특성을 이해하고 설명할 수 있다.</span></li>
+      <li><span class="dot">2</span><span>빅데이터가 <strong>활용</strong>되는 다양한 분야의 사례를 분석할 수 있다.</span></li>
+      <li><span class="dot">3</span><span>빅데이터 <strong>분석 과정</strong>(수집→저장→처리→시각화→의사결정)을 설명할 수 있다.</span></li>
+      <li><span class="dot">4</span><span>스프레드시트 등 <strong>데이터 분석 도구</strong>를 활용하여 간단한 분석을 수행할 수 있다.</span></li>
+    </ul>
+  </div>
+
+  <!-- ─────────────────────────────── 2. 빅데이터란? ─────────────────────────────── -->
+  <div class="slide" id="s2">
+    <div class="tag">1. 빅데이터의 이해</div>
+    <h2>빅데이터란 <span>무엇인가?</span></h2>
+    <div class="divider"></div>
+    <div class="info-box" style="margin-bottom:18px;">
+      💡 디지털 환경에서 생성되는 <strong>방대한 양의 데이터</strong>와 이를 분석·활용하는 기술을 통틀어 <strong>빅데이터</strong>라고 한다.<br>
+      → 단순히 데이터가 많은 것뿐 아니라, <strong>처리·분석하여 가치 있는 정보를 뽑아내는 것</strong>이 핵심이다.
+    </div>
+    <div class="card-grid cols-2" style="max-width:820px;">
+      <div class="card" style="text-align:center;">
+        <span class="icon-lg">🏙️</span>
+        <div class="badge b-green">일상 속 비유</div>
+        <p>도시의 CCTV·교통 센서 데이터를 분석해<br><strong>교통 체증을 예측</strong>하고 신호를 자동 조정</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <span class="icon-lg">🛒</span>
+        <div class="badge b-teal">비즈니스 활용</div>
+        <p>고객 구매 이력 수백만 건을 분석해<br><strong>개인 맞춤 상품을 추천</strong>하는 쇼핑몰</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────── 3. 3V 특성 ─────────────────────────────── -->
+  <div class="slide" id="s3">
+    <div class="tag">1. 빅데이터의 이해</div>
+    <h2>빅데이터의 <span>3V 특성</span></h2>
+    <div class="divider"></div>
+    <p style="text-align:center;margin-bottom:18px;color:var(--text-sub);">카드를 클릭하면 자세한 설명을 볼 수 있어요</p>
+    <div class="card-grid cols-3" style="max-width:900px;">
+      <div class="v-card v1" id="vc1" onclick="toggleV(1)">
+        <div class="v-num">V</div>
+        <div class="v-title">Volume (규모)</div>
+        <div class="v-sub">처리하는 데이터의 양이 매우 방대함</div>
+        <div class="v-detail">
+          수 테라바이트(TB)에서 페타바이트(PB) 이상의 데이터.<br>
+          예) 하루 SNS 게시물·유튜브 영상 업로드량
+        </div>
+      </div>
+      <div class="v-card v2" id="vc2" onclick="toggleV(2)">
+        <div class="v-num">V</div>
+        <div class="v-title">Velocity (속도)</div>
+        <div class="v-sub">데이터가 생성·처리되는 속도가 매우 빠름</div>
+        <div class="v-detail">
+          실시간(Real-time)으로 데이터가 생성·전달됨.<br>
+          예) 주식 거래 데이터, 실시간 스트리밍
+        </div>
+      </div>
+      <div class="v-card v3" id="vc3" onclick="toggleV(3)">
+        <div class="v-num">V</div>
+        <div class="v-title">Variety (다양성)</div>
+        <div class="v-sub">다양한 형태의 데이터가 포함됨</div>
+        <div class="v-detail">
+          텍스트, 이미지, 동영상, 위치정보 등 정형·비정형 데이터.<br>
+          예) SNS 글, 사진, GPS 기록, 센서 신호
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:18px;display:flex;flex-direction:column;gap:10px;max-width:900px;width:100%;">
+      <div class="info-box" style="font-size:.92rem;margin:0;">
+        <strong>3V → 4V → 5V</strong> &nbsp;|&nbsp;
+        3V는 빅데이터를 일반 데이터와 <strong>구분하는 개념적 틀</strong>이다. 세 가지를 모두 완벽히 충족해야 하는 건 아니며, 기존 기술로 처리하기 어려울 만큼 크다면 빅데이터로 본다.<br>
+        여기에 <strong>Value(가치)</strong>를 더하면 <strong>4V</strong>, <strong>Veracity(정확성)</strong>까지 더하면 <strong>5V</strong> — 데이터가 아무리 많고 빠르고 다양해도, 정확하지 않으면 잘못된 결론이 나오고 가치가 없으면 의미가 없기 때문이다.
+      </div>
+      <div class="info-box" style="font-size:.92rem;margin:0;background:var(--card-bg,#f4f4ff);">
+        💡 <strong>빅데이터의 본질</strong>은 데이터가 많다는 게 아니라, 그 속에서 <strong>의미 있는 패턴과 가치를 뽑아내는 것</strong>이다.<br>
+        <em style="color:var(--text-sub);">예) 편의점 구매 데이터 수백만 건 분석 → "비 오는 날 컵라면 급증" 발견 → 진열 변경 → 매출 증가</em>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────── 4. 활용 분야 ─────────────────────────────── -->
+  <div class="slide" id="s4">
+    <div class="tag">1. 빅데이터의 이해</div>
+    <h2>빅데이터 <span>활용 분야</span></h2>
+    <div class="divider"></div>
+    <div class="use-grid">
+      <div class="use-card">
+        <div class="ui">🛍️</div>
+        <div class="ut">세계(유통) 분야</div>
+        <p>고객 구매 패턴 분석으로 맞춤형 상품 추천·재고 최적화</p>
+      </div>
+      <div class="use-card">
+        <div class="ui">🚗</div>
+        <div class="ut">교통 분야</div>
+        <p>실시간 교통 흐름 분석, 신호 최적화, 자율주행 데이터</p>
+      </div>
+      <div class="use-card">
+        <div class="ui">💰</div>
+        <div class="ut">금융 분야</div>
+        <p>이상 거래 탐지(사기 방지), 신용 평가, 주가 예측 모델</p>
+      </div>
+      <div class="use-card">
+        <div class="ui">🏛️</div>
+        <div class="ut">공공 분야</div>
+        <p>범죄 예방, 재난 대응 예측, 스마트 도시 인프라 운영</p>
+      </div>
+      <div class="use-card">
+        <div class="ui">🏥</div>
+        <div class="ut">의료 분야</div>
+        <p>환자 진료 기록 분석, 질병 조기 예측, 신약 개발 지원</p>
+      </div>
+      <div class="use-card">
+        <div class="ui">🌱</div>
+        <div class="ut">환경 분야</div>
+        <p>기후 데이터 분석, 미세먼지 예측, 에너지 소비 최적화</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────── 5. 분석 과정 ─────────────────────────────── -->
+  <div class="slide" id="s5">
+    <div class="tag">2. 빅데이터의 분석과 활용</div>
+    <h2>빅데이터 <span>분석 과정</span></h2>
+    <div class="divider"></div>
+
+    <!-- 단계 탭 -->
+    <div class="process-flow" id="procFlow">
+      <div class="pf-step active" data-idx="0" onclick="selectProc(0)">
+        <div class="pf-num">1</div>
+        <div class="pf-icon">📡</div>
+        <div class="pf-label">데이터 수집</div>
+      </div>
+      <div class="pf-step" data-idx="1" onclick="selectProc(1)">
+        <div class="pf-num">2</div>
+        <div class="pf-icon">🗄️</div>
+        <div class="pf-label">데이터 저장</div>
+      </div>
+      <div class="pf-step" data-idx="2" onclick="selectProc(2)">
+        <div class="pf-num">3</div>
+        <div class="pf-icon">⚙️</div>
+        <div class="pf-label">처리·분석</div>
+      </div>
+      <div class="pf-step" data-idx="3" onclick="selectProc(3)">
+        <div class="pf-num">4</div>
+        <div class="pf-icon">📊</div>
+        <div class="pf-label">데이터 시각화</div>
+      </div>
+      <div class="pf-step" data-idx="4" onclick="selectProc(4)">
+        <div class="pf-num">5</div>
+        <div class="pf-icon">💡</div>
+        <div class="pf-label">의사결정</div>
+      </div>
+    </div>
+
+    <!-- 상세 패널 -->
+    <div class="proc-detail" id="procDetail">
+      <!-- 왼쪽: 핵심 정보 -->
+      <div class="proc-left">
+        <div class="proc-icon-big" id="procIconBig">📡</div>
+        <div class="proc-step-title" id="procStepTitle">데이터 수집</div>
+        <div class="proc-keyword-grid" id="procKeywords"></div>
+      </div>
+      <!-- 오른쪽: 상세 설명 -->
+      <div class="proc-right">
+        <div class="proc-desc-text" id="procDescText"></div>
+        <div class="proc-sections" id="procSections"></div>
+        <div class="proc-example-box" id="procExample"></div>
+      </div>
+    </div>
+    <p style="font-size:.85rem;color:var(--text-sub);margin-top:6px;">단계를 클릭하면 설명이 바뀝니다</p>
+  </div>
+
+  <!-- ─────────────────────────────── 6. 데이터 수집 ─────────────────────────────── -->
+  <div class="slide" id="s6">
+    <div class="tag">2. 분석과 활용</div>
+    <h2>데이터는 어떻게 <span>수집</span>될까?</h2>
+    <div class="divider"></div>
+    <div class="collect-grid">
+      <div class="coll-card">
+        <div class="coll-icon">📱</div>
+        <div>
+          <div class="coll-title">스마트 기기</div>
+          <p style="font-size:.88rem;">스마트폰·태블릿의 앱 사용 기록, GPS 위치, 생체 센서 데이터</p>
+        </div>
+      </div>
+      <div class="coll-card">
+        <div class="coll-icon">💬</div>
+        <div>
+          <div class="coll-title">소셜 네트워크(SNS)</div>
+          <p style="font-size:.88rem;">게시글, 댓글, 좋아요, 공유 등 사람들의 행동·감정 데이터</p>
+        </div>
+      </div>
+      <div class="coll-card">
+        <div class="coll-icon">🌡️</div>
+        <div>
+          <div class="coll-title">각종 센서(IoT)</div>
+          <p style="font-size:.88rem;">온도·습도·압력·CCTV·교통 센서 등 물리 환경 측정 데이터</p>
+        </div>
+      </div>
+      <div class="coll-card">
+        <div class="coll-icon">🌐</div>
+        <div>
+          <div class="coll-title">웹·공공 데이터</div>
+          <p style="font-size:.88rem;">정부 공공 포털, 뉴스 기사, 쇼핑몰 가격·리뷰 등 크롤링 데이터</p>
+        </div>
+      </div>
+    </div>
+    <div class="info-box" style="margin-top:4px;font-size:.95rem;">
+      🔍 수집된 데이터는 <strong>정형 데이터</strong>(표·DB)와 <strong>비정형 데이터</strong>(텍스트·이미지·영상)로 나뉜다.
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────── 7. 데이터 시각화 ─────────────────────────────── -->
+  <div class="slide" id="s7">
+    <div class="tag">2. 분석과 활용</div>
+    <h2>데이터 <span>시각화</span> 방법</h2>
+    <div class="divider"></div>
+    <div class="chart-tabs">
+      <div class="chart-tab sel" onclick="selChart(0)">📈 꺾은선 그래프</div>
+      <div class="chart-tab"     onclick="selChart(1)">📊 막대 그래프</div>
+      <div class="chart-tab"     onclick="selChart(2)">🥧 원형(파이) 차트</div>
+      <div class="chart-tab"     onclick="selChart(3)">🔵 산점도</div>
+    </div>
+    <div class="chart-area">
+      <div class="chart-canvas-wrap">
+        <canvas id="chartCanvas" width="480" height="260"></canvas>
+      </div>
+      <div class="chart-info-panel" id="chartInfoPanel">
+        <h3 id="chartTitle">📈 꺾은선 그래프</h3>
+        <p id="chartDesc">시간의 흐름에 따라 데이터가 어떻게 변하는지 파악할 때 사용한다.</p>
+        <span class="chart-use-tag" id="chartUseTag">변화·추세 파악에 적합</span>
+        <ul class="chart-example-list" id="chartExList">
+          <li>서울 월평균 기온 변화 (좌측 그래프)</li>
+          <li>연도별 스마트폰 판매량 추이</li>
+          <li>주가·환율의 시간별 변동</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────── 10. 독립변수와 종속변수 ─────────────────────────────── -->
+  <div class="slide" id="sVar">
+    <div class="tag">2. 분석과 활용</div>
+    <h2><span>독립변수</span>와 <span style="color:var(--teal)">종속변수</span></h2>
+    <div class="divider"></div>
+
+    <div class="var-layout">
+      <!-- 왼쪽: 정의 카드 2개 -->
+      <div class="var-defs">
+        <div class="var-card ind">
+          <div class="var-badge">독립변수 (X)</div>
+          <div class="var-card-title">Independent Variable</div>
+          <p class="var-card-desc"><strong>원인</strong>이 되는 변수.<br>연구자가 직접 <strong>조작하거나 선택</strong>하는 변수로, 다른 변수에 영향을 준다.</p>
+          <div class="var-also">= 설명변수 · 예측변수 · X축</div>
+        </div>
+        <div class="var-arrow-vert">영향을 줌 ↓</div>
+        <div class="var-card dep">
+          <div class="var-badge dep">종속변수 (Y)</div>
+          <div class="var-card-title">Dependent Variable</div>
+          <p class="var-card-desc"><strong>결과</strong>가 되는 변수.<br>독립변수의 변화에 따라 <strong>영향을 받아 달라지는</strong> 변수다.</p>
+          <div class="var-also dep">= 반응변수 · 결과변수 · Y축</div>
+        </div>
+      </div>
+
+      <!-- 오른쪽: 예시 인터랙티브 -->
+      <div class="var-examples">
+        <div class="var-ex-title">예시를 클릭해서 확인해 보세요</div>
+        <div class="var-ex-list" id="varExList">
+          <div class="var-ex-item sel" onclick="selVar(0)">📚 공부 시간 → 시험 성적</div>
+          <div class="var-ex-item"     onclick="selVar(1)">🌡️ 기온 → 아이스크림 판매량</div>
+          <div class="var-ex-item"     onclick="selVar(2)">📺 광고비 → 매출액</div>
+          <div class="var-ex-item"     onclick="selVar(3)">🏃 운동 시간 → 체중 변화</div>
+          <div class="var-ex-item"     onclick="selVar(4)">😴 수면 시간 → 집중력</div>
+        </div>
+        <div class="var-ex-detail" id="varExDetail">
+          <div class="var-ex-flow" id="varExFlow"></div>
+          <div class="var-ex-explain" id="varExExplain"></div>
+        </div>
+        <div class="var-note">
+          ⚠️ <strong>주의:</strong> 두 변수 사이에 상관관계가 있다고 해서 반드시 인과관계가 있는 것은 아니다!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────── 10-1. 상관관계 vs 인과관계 ─────────────────────────────── -->
+  <div class="slide" id="sCausal">
+    <div class="tag">2. 분석과 활용</div>
+    <h2><span>상관관계</span> vs <span style="color:var(--teal)">인과관계</span></h2>
+    <div class="divider"></div>
+
+    <div style="display:flex;gap:20px;max-width:960px;width:100%;align-items:stretch;">
+
+      <!-- 상관관계 -->
+      <div style="flex:1;background:var(--primary-light,#ede9ff);border-radius:16px;padding:22px 20px;">
+        <div style="font-size:1.05rem;font-weight:700;color:var(--primary,#6c63ff);margin-bottom:8px;">📈 상관관계 (Correlation)</div>
+        <p style="font-size:.93rem;line-height:1.7;margin:0 0 10px;">두 변수가 <strong>함께 변하는 경향</strong>이 있을 때의 관계.<br>한 값이 커지면 다른 값도 커지거나(양의 상관), 반대로 작아지는(음의 상관) 패턴을 말한다.</p>
+        <div style="background:#fff;border-radius:10px;padding:12px 14px;font-size:.88rem;color:var(--text-sub);">
+          예) 아이스크림 판매량 ↑ &amp; 익사 사고 ↑<br>
+          → 둘 다 <em>기온</em>이 높아서 생기는 현상 (공통 원인)
+        </div>
+      </div>
+
+      <!-- 화살표 -->
+      <div style="display:flex;align-items:center;font-size:1.6rem;color:var(--text-sub);padding:0 4px;">≠</div>
+
+      <!-- 인과관계 -->
+      <div style="flex:1;background:var(--teal-light,#e0f7f4);border-radius:16px;padding:22px 20px;">
+        <div style="font-size:1.05rem;font-weight:700;color:var(--teal,#2cb5a0);margin-bottom:8px;">🔗 인과관계 (Causation)</div>
+        <p style="font-size:.93rem;line-height:1.7;margin:0 0 10px;"><strong>원인(X)이 결과(Y)를 직접 발생</strong>시키는 관계.<br>단순히 같이 움직이는 것이 아니라 X가 변해서 Y가 변한다는 것이 증명되어야 한다.</p>
+        <div style="background:#fff;border-radius:10px;padding:12px 14px;font-size:.88rem;color:var(--text-sub);">
+          예) 공부 시간(X) ↑ → 시험 성적(Y) ↑<br>
+          → X가 원인, Y가 결과임이 논리적으로 설명됨
+        </div>
+      </div>
+    </div>
+
+    <div class="info-box" style="margin-top:16px;max-width:960px;font-size:.93rem;">
+      ⚠️ <strong>상관관계 ≠ 인과관계</strong> — 상관관계가 있다고 해서 반드시 인과관계가 있는 것은 아니다.<br>
+      빅데이터 분석에서는 패턴(상관관계)을 발견하는 것이 출발점이지만, <strong>"왜 그런가(인과관계)"를 함께 검토</strong>해야 올바른 의사결정을 할 수 있다.
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────── 11. 상관 분석 ─────────────────────────────── -->
+  <div class="slide" id="s9">
+    <div class="tag">2. 분석과 활용</div>
+    <h2>상관 분석과 <span>상관계수</span></h2>
+    <div class="divider"></div>
+    <div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap;justify-content:center;width:100%;max-width:960px;">
+      <div style="flex:1;min-width:260px;">
+        <div class="info-box" style="margin-bottom:12px;font-size:.93rem;">
+          📌 <strong>상관 분석</strong>이란 두 변수 사이에 어떤 관련성이 있는지 수치로 나타내는 방법<br>
+          → 결과값 <strong>r</strong> (상관계수): −1 ~ +1 사이
+        </div>
+        <table style="max-width:340px;font-size:.88rem;">
+          <tr><th>r 값 범위</th><th>의미</th></tr>
+          <tr><td>0.7 ~ 1.0</td><td>강한 양의 상관</td></tr>
+          <tr><td>0.3 ~ 0.7</td><td>약한 양의 상관</td></tr>
+          <tr><td>-0.3 ~ 0.3</td><td>상관 없음</td></tr>
+          <tr><td>-0.7 ~ -0.3</td><td>약한 음의 상관</td></tr>
+          <tr><td>-1.0 ~ -0.7</td><td>강한 음의 상관</td></tr>
+        </table>
+      </div>
+      <div style="flex:1;min-width:280px;display:flex;flex-direction:column;align-items:center;gap:10px;">
+        <div class="corr-slider-wrap">
+          <label>상관계수 r</label>
+          <input type="range" id="corrSlider" min="-100" max="100" value="80" oninput="updateCorr()">
+          <div class="corr-val" id="corrVal">0.80</div>
+        </div>
+        <canvas id="corrCanvas" width="280" height="200" style="border-radius:12px;border:1px solid var(--border);background:#fff;"></canvas>
+        <div class="corr-interp" id="corrInterp" style="background:var(--primary-light);color:var(--primary);">강한 양의 상관관계</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────── 11. 프로젝트 ─────────────────────────────── -->
+  <div class="slide" id="s11">
+    <div class="tag">실습 프로젝트</div>
+    <h2>빅데이터 분석 <span>프로젝트 보고서</span></h2>
+    <div class="divider"></div>
+    <table style="max-width:900px;font-size:.92rem;">
+      <tr>
+        <th style="width:140px;">항목</th>
+        <th>내용</th>
+      </tr>
+      <tr>
+        <td>탐구 주제</td>
+        <td style="text-align:left;">빅데이터를 활용하여 분석하고 싶은 주제 선정 (예: 서울시 미세먼지와 교통량의 관계)</td>
+      </tr>
+      <tr>
+        <td>문제 정의</td>
+        <td style="text-align:left;">어떤 문제를 해결하고자 하는지, 가설을 세우고 분석 방향 설정</td>
+      </tr>
+      <tr>
+        <td>데이터 수집</td>
+        <td style="text-align:left;">공공 데이터 포털·SNS·직접 설문 등으로 관련 데이터 확보</td>
+      </tr>
+      <tr>
+        <td>데이터 처리</td>
+        <td style="text-align:left;">엑셀/스프레드시트로 정렬·필터·차트 작성·상관 분석 수행</td>
+      </tr>
+      <tr>
+        <td>시각화</td>
+        <td style="text-align:left;">꺾은선·막대·산점도 등 적절한 차트로 결과 시각화</td>
+      </tr>
+      <tr>
+        <td>결과 해석</td>
+        <td style="text-align:left;">분석 결과가 가설과 일치하는지, 한계는 무엇인지 서술</td>
+      </tr>
+      <tr>
+        <td>발표·공유</td>
+        <td style="text-align:left;">보고서 작성 후 반 전체 발표 및 피드백 공유</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- ─────────────────────────────── 12. 정리 ─────────────────────────────── -->
+  <div class="slide" id="s12">
+    <div class="tag">수업 정리</div>
+    <h2>오늘 배운 내용 <span>한눈에 보기</span></h2>
+    <div class="divider"></div>
+    <div class="card-grid cols-2" style="max-width:900px;">
+      <div class="card">
+        <div class="badge b-green">빅데이터의 이해</div>
+        <ul style="padding-left:16px;font-size:.92rem;line-height:1.9;">
+          <li>빅데이터 = 방대한 양 + 처리·분석 기술</li>
+          <li>3V: Volume · Velocity · Variety (+Value, Veracity → 5V)</li>
+          <li>활용 분야: 유통·교통·금융·공공·의료·환경</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="badge b-teal">분석 과정</div>
+        <ul style="padding-left:16px;font-size:.92rem;line-height:1.9;">
+          <li>수집 → 저장 → 처리·분석 → 시각화 → 의사결정</li>
+          <li>수집 경로: 스마트기기·SNS·IoT 센서·공공데이터</li>
+          <li>정형 데이터 vs 비정형 데이터</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="badge b-blue">시각화 & 도구</div>
+        <ul style="padding-left:16px;font-size:.92rem;line-height:1.9;">
+          <li>차트 종류: 꺾은선·막대·원형·산점도</li>
+          <li>도구: 스프레드시트 / R·Python / Tableau</li>
+          <li>목적에 맞는 차트 선택이 중요!</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="badge b-gold">상관 분석</div>
+        <ul style="padding-left:16px;font-size:.92rem;line-height:1.9;">
+          <li>상관계수 r: −1 (강한 음) ~ +1 (강한 양)</li>
+          <li>r ≥ 0.7 → 강한 양의 상관관계</li>
+          <li>상관 ≠ 인과! 해석에 주의 필요</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- 내비게이션 -->
+<div class="progress-bar" id="pbar"></div>
+<div class="slide-num" id="slideNum">1 / 14</div>
+<div class="nav-hint">
+  <button class="nav-btn" onclick="go(-1)">◀</button>
+  <kbd>←</kbd><span>이전</span> / <span>다음</span><kbd>→</kbd>
+  <button class="nav-btn" onclick="go(1)">▶</button>
+</div>
+
+<script>
+/* ── 슬라이드 제어 ── */
+const slides = document.querySelectorAll('.slide');
+const total  = slides.length;
+let cur = 0;
+
+function showSlide(n) {
+  slides[cur].classList.remove('active');
+  slides[cur].classList.add('exit');
+  setTimeout(()=>slides[cur].classList.remove('exit'), 400);
+  cur = (n + total) % total;
+  slides[cur].classList.add('active');
+  document.getElementById('pbar').style.width = ((cur+1)/total*100)+'%';
+  document.getElementById('slideNum').textContent = (cur+1)+' / '+total;
+  if (slides[cur].id === 's7') initChartSlide();
+  if (slides[cur].id === 's9') initCorr();
+}
+function go(d){ showSlide(cur+d); }
+document.addEventListener('keydown', e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown') go(1);
+  if(e.key==='ArrowLeft' ||e.key==='ArrowUp')   go(-1);
+});
+
+/* ── 초기 진행바 ── */
+document.getElementById('pbar').style.width = (1/total*100)+'%';
+
+/* ── 3V 카드 토글 ── */
+function toggleV(n){
+  const c = document.getElementById('vc'+n);
+  const wasActive = c.classList.contains('active');
+  [1,2,3].forEach(i=>document.getElementById('vc'+i).classList.remove('active'));
+  if(!wasActive) c.classList.add('active');
+}
+
+/* ── 분석 과정 클릭 ── */
+const procData = [
+  {
+    icon: '📡', title: '데이터 수집',
+    desc: '원천 데이터를 확보하는 첫 번째 단계. 다양한 경로에서 데이터를 모으며, 수집 방법과 출처에 따라 데이터의 품질과 신뢰도가 크게 달라진다.',
+    keywords: [
+      {text:'정형 데이터', cls:''},
+      {text:'비정형 데이터', cls:'alt'},
+      {text:'실시간 수집', cls:'alt2'},
+      {text:'배치 수집', cls:'alt3'},
+    ],
+    sections: [
+      { label:'수집 경로', cls:'', chips:['스마트기기', 'SNS', 'IoT 센서', '공공 포털', '웹 크롤링'] },
+      { label:'데이터 유형', cls:'t2', chips:['텍스트', '이미지', '영상', '위치정보', '로그'] },
+    ],
+    example: '🔍 <strong>실생활 예시:</strong> 공공데이터포털(data.go.kr)에서 서울시 교통 데이터를 CSV로 내려받거나, SNS API로 게시글을 실시간 수집한다.'
+  },
+  {
+    icon: '🗄️', title: '데이터 저장',
+    desc: '수집한 방대한 데이터를 손실 없이 효율적으로 보관하는 단계. 데이터 유형과 규모에 맞는 저장 방식을 선택하는 것이 중요하다.',
+    keywords: [
+      {text:'데이터베이스(DB)', cls:''},
+      {text:'분산 파일 시스템', cls:'alt'},
+      {text:'클라우드 스토리지', cls:'alt2'},
+      {text:'데이터 레이크', cls:'alt3'},
+    ],
+    sections: [
+      { label:'정형 데이터 저장', cls:'', chips:['관계형 DB', 'MySQL', 'Oracle', 'PostgreSQL'] },
+      { label:'대용량·비정형 저장', cls:'t2', chips:['NoSQL', 'MongoDB', 'HDFS', 'AWS S3', 'Hadoop'] },
+    ],
+    example: '🔍 <strong>실생활 예시:</strong> 유튜브는 하루 수백만 건의 영상·댓글을 분산 파일 시스템(HDFS)에 저장하고, 클라우드(AWS)로 안정적으로 운영한다.'
+  },
+  {
+    icon: '⚙️', title: '데이터 처리·분석',
+    desc: '저장된 데이터를 정제(전처리)하고, 통계·머신러닝 기법으로 의미 있는 패턴과 인사이트를 뽑아내는 핵심 단계.',
+    keywords: [
+      {text:'데이터 전처리', cls:''},
+      {text:'통계 분석', cls:'alt'},
+      {text:'머신러닝', cls:'alt2'},
+      {text:'텍스트 마이닝', cls:'alt3'},
+    ],
+    sections: [
+      { label:'분석 기법', cls:'', chips:['평균·분산', '상관 분석', '회귀 분석', '군집 분석', '분류'] },
+      { label:'분석 도구', cls:'t2', chips:['Python', 'R', 'Excel', 'Spark', 'TensorFlow'] },
+    ],
+    example: '🔍 <strong>실생활 예시:</strong> 넷플릭스는 수억 건의 시청 기록을 머신러닝으로 분석해 "이 영상을 좋아한다면…" 추천 목록을 생성한다.'
+  },
+  {
+    icon: '📊', title: '데이터 시각화',
+    desc: '분석 결과를 차트·그래프·지도 등 시각적 형태로 표현하는 단계. 숫자만 나열하는 것보다 훨씬 빠르게 패턴과 인사이트를 전달할 수 있다.',
+    keywords: [
+      {text:'꺾은선 그래프', cls:''},
+      {text:'막대 그래프', cls:'alt'},
+      {text:'히트맵', cls:'alt2'},
+      {text:'대시보드', cls:'alt3'},
+    ],
+    sections: [
+      { label:'차트 종류', cls:'', chips:['꺾은선', '막대', '파이', '산점도', '히트맵', '지도'] },
+      { label:'시각화 도구', cls:'t2', chips:['Excel', 'Tableau', 'Power BI', 'matplotlib', 'D3.js'] },
+    ],
+    example: '🔍 <strong>실생활 예시:</strong> 코로나19 확진자 현황을 지역별 히트맵으로 표현해 위험 지역을 한눈에 파악하고 방역 정책 수립에 활용했다.'
+  },
+  {
+    icon: '💡', title: '의사결정',
+    desc: '시각화된 분석 결과를 바탕으로 실질적인 행동 방안을 결정하는 최종 단계. 빅데이터 분석의 궁극적 목적은 더 나은 의사결정을 지원하는 것이다.',
+    keywords: [
+      {text:'데이터 기반 결정', cls:''},
+      {text:'정책 수립', cls:'alt'},
+      {text:'비즈니스 전략', cls:'alt2'},
+      {text:'피드백·개선', cls:'alt3'},
+    ],
+    sections: [
+      { label:'의사결정 방식', cls:'', chips:['보고서 작성', '경영 전략', '정책 입안', '서비스 개선'] },
+      { label:'핵심 포인트', cls:'t2', chips:['데이터 기반(DDDM)', '불확실성 감소', '객관적 근거', '지속 모니터링'] },
+    ],
+    example: '🔍 <strong>실생활 예시:</strong> 편의점 본사는 지역·날씨·요일별 판매 데이터를 분석해 각 매장의 발주량을 자동으로 최적화하여 폐기율을 낮춘다.'
+  }
+];
+
+function selectProc(idx){
+  document.querySelectorAll('.pf-step').forEach((s,i)=>s.classList.toggle('active', i===idx));
+  const d = procData[idx];
+  document.getElementById('procIconBig').textContent  = d.icon;
+  document.getElementById('procStepTitle').textContent = d.title;
+  document.getElementById('procDescText').textContent  = d.desc;
+  document.getElementById('procKeywords').innerHTML = d.keywords
+    .map(k=>`<div class="proc-kw ${k.cls}">${k.text}</div>`).join('');
+  document.getElementById('procSections').innerHTML = d.sections
+    .map(s=>`
+      <div class="proc-section ${s.cls}">
+        <div class="proc-section-label">${s.label}</div>
+        <div class="proc-section-items">${s.chips.map(c=>`<span class="proc-chip">${c}</span>`).join('')}</div>
+      </div>`).join('');
+  document.getElementById('procExample').innerHTML = d.example;
+}
+selectProc(0);
+
+/* ── 시각화 차트 선택 ── */
+/* ── 시각화 슬라이드 차트 ── */
+const chartMeta = [
+  {
+    title:'📈 꺾은선 그래프',
+    desc:'시간의 흐름에 따라 데이터가 어떻게 변하는지 파악할 때 사용한다.',
+    tag:'변화·추세 파악에 적합',
+    examples:['서울 월평균 기온 변화 (좌측 그래프)','연도별 스마트폰 판매량 추이','주가·환율의 시간별 변동']
+  },
+  {
+    title:'📊 막대 그래프',
+    desc:'여러 항목의 크기를 나란히 비교할 때 사용한다.',
+    tag:'항목 간 비교에 적합',
+    examples:['지역별 SNS 사용자 수 (좌측 그래프)','월별 온라인 쇼핑 매출 비교','반별 평균 성적 비교']
+  },
+  {
+    title:'🥧 원형(파이) 차트',
+    desc:'전체에서 각 항목이 차지하는 비율을 한눈에 나타낼 때 사용한다.',
+    tag:'비율·구성 파악에 적합',
+    examples:['청소년 SNS 플랫폼 사용 비율 (좌측 그래프)','가계 지출 항목별 비율','데이터 유형별 구성 비율']
+  },
+  {
+    title:'🔵 산점도',
+    desc:'두 변수 사이의 관계(상관관계)를 점으로 표현한다. 점이 일정 방향으로 모일수록 상관이 강하다.',
+    tag:'상관관계 파악에 적합',
+    examples:['공부 시간 vs. 시험 성적 (좌측 그래프)','기온 vs. 아이스크림 판매량','운동량 vs. 체중 변화']
+  }
+];
+
+function selChart(idx){
+  document.querySelectorAll('.chart-tab').forEach((t,i)=>t.classList.toggle('sel',i===idx));
+  const m = chartMeta[idx];
+  document.getElementById('chartTitle').textContent  = m.title;
+  document.getElementById('chartDesc').textContent   = m.desc;
+  document.getElementById('chartUseTag').textContent = m.tag;
+  const ul = document.getElementById('chartExList');
+  ul.innerHTML = m.examples.map(e=>`<li>${e}</li>`).join('');
+  drawChart(idx);
+}
+
+function drawChart(idx){
+  const canvas = document.getElementById('chartCanvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0,0,W,H);
+  if(idx===0) drawLine(ctx,W,H);
+  else if(idx===1) drawBar(ctx,W,H);
+  else if(idx===2) drawPie(ctx,W,H);
+  else drawScatterChart(ctx,W,H);
+}
+
+function drawLine(ctx,W,H){
+  const data   = [-3,0,6,13,18,23,26,27,22,15,7,0];
+  const labels = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  const pad={t:28,r:18,b:42,l:46};
+  const cW=W-pad.l-pad.r, cH=H-pad.t-pad.b;
+  const minV=-5, maxV=30;
+  const xOf=i=>pad.l+cW*i/(data.length-1);
+  const yOf=v=>pad.t+cH*(1-(v-minV)/(maxV-minV));
+
+  // grid + y labels
+  ctx.font='12px Noto Sans KR'; ctx.textAlign='right'; ctx.fillStyle='#94a3b8';
+  for(let i=0;i<=5;i++){
+    const val=minV+(maxV-minV)*i/5, y=yOf(val);
+    ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(pad.l+cW,y); ctx.stroke();
+    ctx.fillText(Math.round(val)+'°',pad.l-6,y+4);
+  }
+  // x labels
+  ctx.textAlign='center';
+  labels.forEach((l,i)=>ctx.fillText(l,xOf(i),H-pad.b+16));
+
+  // zero line
+  ctx.strokeStyle='#cbd5e1'; ctx.lineWidth=1.5; ctx.setLineDash([4,3]);
+  ctx.beginPath(); ctx.moveTo(pad.l,yOf(0)); ctx.lineTo(pad.l+cW,yOf(0)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // area
+  ctx.beginPath();
+  data.forEach((v,i)=>{const x=xOf(i),y=yOf(v); i?ctx.lineTo(x,y):ctx.moveTo(x,y);});
+  ctx.lineTo(xOf(data.length-1),yOf(minV));
+  ctx.lineTo(xOf(0),yOf(minV));
+  ctx.closePath();
+  const grad=ctx.createLinearGradient(0,pad.t,0,pad.t+cH);
+  grad.addColorStop(0,'rgba(22,163,74,.28)'); grad.addColorStop(1,'rgba(22,163,74,.03)');
+  ctx.fillStyle=grad; ctx.fill();
+
+  // line
+  ctx.beginPath(); ctx.strokeStyle='#16a34a'; ctx.lineWidth=2.8; ctx.lineJoin='round';
+  data.forEach((v,i)=>{const x=xOf(i),y=yOf(v); i?ctx.lineTo(x,y):ctx.moveTo(x,y);});
+  ctx.stroke();
+
+  // points
+  data.forEach((v,i)=>{
+    const x=xOf(i),y=yOf(v);
+    ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2);
+    ctx.fillStyle='#16a34a'; ctx.fill();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
+  });
+
+  // title
+  ctx.fillStyle='#475569'; ctx.font='bold 12px Noto Sans KR'; ctx.textAlign='center';
+  ctx.fillText('서울 월평균 기온 (°C)',W/2,14);
+}
+
+function drawBar(ctx,W,H){
+  const data  =[42,68,55,81,73,60];
+  const labels=['서울','부산','인천','경기','대구','광주'];
+  const colors=['#16a34a','#0d9488','#2563eb','#7c3aed','#d97706','#ef4444'];
+  const pad={t:28,r:18,b:42,l:52};
+  const cW=W-pad.l-pad.r, cH=H-pad.t-pad.b;
+  const maxV=100;
+  const bw=Math.floor(cW/data.length*0.58), gap=Math.floor(cW/data.length);
+
+  // grid
+  for(let i=0;i<=4;i++){
+    const val=maxV*i/4, y=pad.t+cH*(1-val/maxV);
+    ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(pad.l+cW,y); ctx.stroke();
+    ctx.fillStyle='#94a3b8'; ctx.font='12px Noto Sans KR'; ctx.textAlign='right';
+    ctx.fillText(val+'만',pad.l-6,y+4);
+  }
+
+  // bars with animation-like gradient
+  data.forEach((v,i)=>{
+    const x=pad.l+gap*i+(gap-bw)/2;
+    const bh=cH*v/maxV;
+    const y=pad.t+cH-bh;
+    const grad=ctx.createLinearGradient(x,y,x,y+bh);
+    grad.addColorStop(0,colors[i]+'cc'); grad.addColorStop(1,colors[i]+'88');
+    ctx.fillStyle=grad;
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(x,y,bw,bh,6) : (()=>{ctx.rect(x,y,bw,bh)})();
+    ctx.fill();
+    // value label
+    ctx.fillStyle=colors[i]; ctx.font='bold 12px Noto Sans KR'; ctx.textAlign='center';
+    ctx.fillText(v+'만',x+bw/2,y-5);
+    // x label
+    ctx.fillStyle='#64748b'; ctx.font='12px Noto Sans KR';
+    ctx.fillText(labels[i],x+bw/2,H-pad.b+16);
+  });
+
+  ctx.fillStyle='#475569'; ctx.font='bold 12px Noto Sans KR'; ctx.textAlign='center';
+  ctx.fillText('지역별 SNS 이용자 수 (만 명)',W/2,14);
+}
+
+function drawPie(ctx,W,H){
+  const data  =[35,28,20,10,7];
+  const labels=['인스타그램','유튜브','틱톡','트위터X','기타'];
+  const colors=['#16a34a','#0d9488','#2563eb','#7c3aed','#d97706'];
+  const cx=W*0.4, cy=H/2, r=Math.min(W,H)*0.38;
+  let angle=-Math.PI/2;
+
+  data.forEach((v,i)=>{
+    const slice=2*Math.PI*v/100;
+    // sector
+    ctx.beginPath(); ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,r,angle,angle+slice);
+    ctx.closePath();
+    ctx.fillStyle=colors[i]; ctx.fill();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=2.5; ctx.stroke();
+    // % label inside
+    const mid=angle+slice/2;
+    const lx=cx+Math.cos(mid)*r*0.65, ly=cy+Math.sin(mid)*r*0.65;
+    ctx.fillStyle='#fff'; ctx.font='bold 13px Noto Sans KR'; ctx.textAlign='center';
+    ctx.fillText(v+'%',lx,ly+5);
+    angle+=slice;
+  });
+
+  // legend
+  const lx=W*0.72, ly=H/2-data.length*13;
+  data.forEach((v,i)=>{
+    ctx.fillStyle=colors[i];
+    ctx.beginPath(); ctx.roundRect ? ctx.roundRect(lx,ly+i*26,14,14,3) : ctx.rect(lx,ly+i*26,14,14); ctx.fill();
+    ctx.fillStyle='#475569'; ctx.font='12px Noto Sans KR'; ctx.textAlign='left';
+    ctx.fillText(labels[i],lx+20,ly+i*26+11);
+  });
+
+  ctx.fillStyle='#475569'; ctx.font='bold 12px Noto Sans KR'; ctx.textAlign='center';
+  ctx.fillText('청소년 SNS 플랫폼 사용 비율',W/2,14);
+}
+
+function drawScatterChart(ctx,W,H){
+  const pad={t:28,r:18,b:44,l:48};
+  const cW=W-pad.l-pad.r, cH=H-pad.t-pad.b;
+  // 공부시간(x) vs 성적(y) — 양의 상관
+  const pts=[
+    [1,42],[1.5,50],[2,55],[2,58],[2.5,60],[3,63],[3,67],[3.5,70],
+    [4,68],[4,73],[4.5,75],[5,78],[5,80],[5.5,82],[6,85],[6,88],[6.5,90],[7,91]
+  ];
+
+  // grid
+  for(let i=0;i<=4;i++){
+    const y=pad.t+cH*i/4;
+    ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(pad.l+cW,y); ctx.stroke();
+    ctx.fillStyle='#94a3b8'; ctx.font='11px Noto Sans KR'; ctx.textAlign='right';
+    ctx.fillText(Math.round(100-25*i),pad.l-5,y+4);
+  }
+  for(let i=0;i<=6;i++){
+    const x=pad.l+cW*i/6;
+    ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(x,pad.t); ctx.lineTo(x,pad.t+cH); ctx.stroke();
+    ctx.fillStyle='#94a3b8'; ctx.font='11px Noto Sans KR'; ctx.textAlign='center';
+    ctx.fillText((i+1)+'h',x,H-pad.b+15);
+  }
+
+  // axes labels
+  ctx.save(); ctx.translate(14,H/2); ctx.rotate(-Math.PI/2);
+  ctx.fillStyle='#64748b'; ctx.font='bold 11px Noto Sans KR'; ctx.textAlign='center';
+  ctx.fillText('시험 성적 (점)',0,0); ctx.restore();
+  ctx.fillStyle='#64748b'; ctx.font='bold 11px Noto Sans KR'; ctx.textAlign='center';
+  ctx.fillText('공부 시간 (시간/일)',W/2,H-2);
+
+  // trend line (simple linear)
+  const xScale=v=>pad.l+cW*(v-1)/6.5;
+  const yScale=v=>pad.t+cH*(1-(v-30)/70);
+  ctx.strokeStyle='rgba(22,163,74,.4)'; ctx.lineWidth=2; ctx.setLineDash([6,4]);
+  ctx.beginPath(); ctx.moveTo(xScale(1),yScale(40)); ctx.lineTo(xScale(7),yScale(92)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // points
+  pts.forEach(([x,y])=>{
+    const px=xScale(x), py=yScale(y);
+    ctx.beginPath(); ctx.arc(px,py,5.5,0,Math.PI*2);
+    ctx.fillStyle='rgba(22,163,74,.75)'; ctx.fill();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke();
+  });
+
+  ctx.fillStyle='#475569'; ctx.font='bold 12px Noto Sans KR'; ctx.textAlign='center';
+  ctx.fillText('공부 시간 vs. 시험 성적',W/2,14);
+}
+
+// 슬라이드 s7 진입 시 초기 그래프 그리기
+let chartReady=false;
+function initChartSlide(){
+  if(chartReady) return;
+  chartReady=true;
+  drawChart(0);
+}
+
+/* ── 엑셀 실습 슬라이드 ── */
+const exData = {
+  raw: [
+    ['도시','인구(만)','면적(km²)','인구밀도(/km²)'],
+    ['서울','954','605','15,768'],
+    ['부산','332','770','4,312'],
+    ['인천','295','1,063','2,775'],
+    ['대구','237','883','2,685'],
+    ['대전','145','540','2,685'],
+    ['광주','142','501','2,834'],
+  ],
+  sorted: [
+    ['도시','인구(만)','면적(km²)','인구밀도(/km²)'],
+    ['서울','954','605','15,768'],
+    ['부산','332','770','4,312'],
+    ['인천','295','1,063','2,775'],
+    ['대구','237','883','2,685'],
+    ['광주','142','501','2,834'],
+    ['대전','145','540','2,685'],
+  ]
+};
+
+const exSteps = [
+  {
+    title: '① 데이터 준비 — 공공데이터 입력',
+    desc:  '공공데이터포털(data.go.kr) 또는 KOSIS(통계청)에서 CSV 파일을 내려받아 엑셀에 붙여넣는다. 첫 행은 항목명(헤더), 아래 행들이 실제 데이터다.',
+    ribbon: ['홈','삽입','데이터'],
+    formula: { ref:'A1', text:'도시' },
+    how: [
+      '공공데이터포털에서 원하는 데이터 검색 후 CSV 다운로드',
+      '엑셀 실행 → 파일 열기 또는 붙여넣기',
+      '첫 행 헤더 굵게 · 배경색 적용으로 구분',
+    ],
+    tip: '💡 <strong>정형 데이터</strong>는 행(레코드)·열(필드) 구조의 표로, 엑셀에서 바로 다룰 수 있다.',
+    render: 'table-raw'
+  },
+  {
+    title: '② 정렬·필터 — 원하는 순서로 보기',
+    desc:  '인구 많은 순서로 정렬하거나, 특정 조건에 맞는 행만 필터링하여 필요한 데이터만 골라볼 수 있다.',
+    ribbon: ['홈','데이터','정렬 및 필터'],
+    formula: { ref:'B2', text:'=LARGE($B$2:$B$7,ROW()-1) ← 응용' },
+    how: [
+      '데이터 범위 선택 (A1:D7)',
+      '[데이터] 탭 → [정렬] 클릭',
+      '정렬 기준: 인구(만) → 내림차순 선택 후 확인',
+    ],
+    tip: '💡 <strong>필터</strong>는 [데이터] → [필터]를 켠 뒤 열 헤더 ▼를 클릭해 조건을 설정한다.',
+    render: 'table-sorted'
+  },
+  {
+    title: '③ 조건부 서식 — 색으로 패턴 파악',
+    desc:  '조건부 서식을 사용하면 값의 크기에 따라 자동으로 색이 칠해져, 데이터 분포를 한눈에 파악할 수 있다.',
+    ribbon: ['홈','조건부 서식'],
+    formula: { ref:'B2:B7', text:'상위/하위 규칙 적용 범위' },
+    how: [
+      '인구(만) 열(B2:B7) 선택',
+      '[홈] → [조건부 서식] → [색조] 또는 [데이터 막대] 선택',
+      '규칙 편집: 상위 3개 초록, 하위 3개 빨강 적용',
+    ],
+    tip: '💡 <strong>데이터 막대</strong>는 셀 안에 막대 그래프를 그려주어 별도 차트 없이도 크기 비교가 가능하다.',
+    render: 'table-cond'
+  },
+  {
+    title: '④ 차트 만들기 — 데이터를 그래프로',
+    desc:  '데이터 범위를 선택한 뒤 [삽입] → [차트]를 클릭하면 다양한 종류의 차트를 자동으로 생성할 수 있다.',
+    ribbon: ['홈','삽입','차트'],
+    formula: { ref:'A1:B7', text:'차트 데이터 원본 범위' },
+    how: [
+      '도시·인구 열(A1:B7) 선택',
+      '[삽입] → [차트] → 세로 막대형 선택',
+      '차트 제목 더블클릭해 "도시별 인구" 입력',
+    ],
+    tip: '💡 차트를 만든 뒤 [추세선 추가]로 데이터의 경향(트렌드)을 선으로 표시할 수 있다.',
+    render: 'chart-bar'
+  },
+  {
+    title: '⑤ 상관계수 — CORREL 함수',
+    desc:  'CORREL 함수로 두 변수의 상관계수 r을 계산한다. 면적이 클수록 인구도 많은지, 두 데이터의 관계를 수치로 확인할 수 있다.',
+    ribbon: ['홈','수식'],
+    formula: { ref:'F2', text:'=CORREL(B2:B7, C2:C7)' },
+    how: [
+      '빈 셀(F2) 클릭',
+      '=CORREL( 입력 후 인구 범위(B2:B7) 선택, , 입력',
+      '면적 범위(C2:C7) 선택 후 ) Enter',
+    ],
+    tip: '💡 결과값 <strong>r = 0.62</strong> → 면적과 인구는 약한 양의 상관관계. 면적이 넓다고 인구가 반드시 많지는 않다!',
+    render: 'table-correl'
+  }
+];
+
+function selEx(idx){
+  document.querySelectorAll('.ex-tab').forEach((t,i)=>t.classList.toggle('sel',i===idx));
+  const s = exSteps[idx];
+  // 리본
+  document.getElementById('exRibbon').innerHTML =
+    s.ribbon.map((r,i)=>`<div class="ex-ribbon-btn${i===s.ribbon.length-1?' active':''}">${r}</div>`).join('') +
+    '<span style="margin-left:auto;opacity:.7;font-size:.7rem;">Microsoft Excel</span>';
+  // 수식 입력줄
+  document.getElementById('exFormulaBar').innerHTML =
+    `<span class="ex-cell-ref">${s.formula.ref}</span>` +
+    `<span class="ex-formula-text">${s.formula.text}</span>`;
+  // 설명 패널
+  document.getElementById('exStepTitle').textContent = s.title;
+  document.getElementById('exStepDesc').textContent  = s.desc;
+  // 방법
+  document.getElementById('exHow').innerHTML =
+    `<div class="ex-how-title">📌 실행 방법</div>` +
+    s.how.map((h,i)=>`<div class="ex-how-step"><span class="sn">${i+1}</span><span>${h}</span></div>`).join('');
+  document.getElementById('exTip').innerHTML = s.tip;
+  // 시트 렌더링
+  renderExSheet(s.render);
+}
+
+function renderExSheet(type){
+  const el = document.getElementById('exSheet');
+  if(type === 'chart-bar'){ el.innerHTML = buildBarChartSVG(); return; }
+  const rows = type === 'table-sorted' ? exData.sorted : exData.raw;
+  const cols = ['','A','B','C','D'];
+  let html = '<table class="xs-table"><thead><tr>';
+  html += `<th class="xs-rownum"></th>`;
+  cols.slice(1).forEach(c=>html+=`<th class="xs-colhdr">${c}</th>`);
+  html += '</tr></thead><tbody>';
+  rows.forEach((row, ri)=>{
+    html += '<tr>';
+    html += `<td class="xs-rownum">${ri===0?'':ri}</td>`;
+    row.forEach((cell, ci)=>{
+      let cls = '';
+      if(ri === 0) cls = 'xs-hdr';
+      if(type === 'table-cond' && ci === 1 && ri > 0){
+        const v = parseFloat(cell.replace(',',''));
+        cls = v >= 295 ? 'xs-hi1' : v >= 145 ? 'xs-hi2' : 'xs-hi3';
+      }
+      if(type === 'table-sorted' && ci === 1 && ri === 1) cls += ' xs-sel';
+      if(type === 'table-correl'){
+        if(ri === 0) cls = 'xs-hdr';
+        if(ri > 0 && ci === 0) cls = '';
+      }
+      // 데이터 막대 (조건부 서식 단계)
+      if(type === 'table-cond' && ci === 1 && ri > 0){
+        const vals = [954,332,295,237,145,142];
+        const pct = Math.round(parseFloat(cell.replace(',',''))/954*100);
+        const barcls = parseFloat(cell.replace(',','')) >= 295 ? 'xs-hi1' : parseFloat(cell.replace(',','')) >= 145 ? 'xs-hi2' : 'xs-hi3';
+        html += `<td class="${barcls}" style="position:relative;">` +
+          `<div style="position:absolute;left:0;top:0;bottom:0;width:${pct}%;background:rgba(33,115,70,.18);pointer-events:none;"></div>` +
+          `<span style="position:relative;">${cell}</span></td>`;
+        return;
+      }
+      html += `<td class="${cls}">${cell}</td>`;
+    });
+    // CORREL 단계: F열 추가
+    if(type === 'table-correl'){
+      if(ri === 0) html += `<td class="xs-colhdr" style="background:#e8f4fd;color:#0070c0;font-weight:700;">F</td>`;
+      else if(ri === 1) html += `<td class="xs-formula">=CORREL(B2:B7,C2:C7)</td>`;
+      else if(ri === 2) html += `<td style="color:#217346;font-weight:700;background:#c6efce;">0.62</td>`;
+      else html += `<td></td>`;
+    }
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  el.innerHTML = html;
+}
+
+function buildBarChartSVG(){
+  const cities = ['서울','부산','인천','대구','대전','광주'];
+  const vals   = [954, 332, 295, 237, 145, 142];
+  const colors = ['#217346','#2e7d32','#388e3c','#43a047','#4caf50','#66bb6a'];
+  const W=460, H=190, padL=42, padB=30, padT=14, padR=10;
+  const cW=W-padL-padR, cH=H-padT-padB;
+  const bw=Math.floor(cW/vals.length*0.62), gap=cW/vals.length;
+  let svg=`<div class="ex-chart-preview"><svg width="${W}" height="${H}" style="font-family:'Noto Sans KR',sans-serif;">`;
+  // grid
+  for(let i=0;i<=4;i++){
+    const y=padT+cH*(1-i/4), v=Math.round(1000*i/4);
+    svg+=`<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="#e0e0e0" stroke-width="1"/>`;
+    svg+=`<text x="${padL-4}" y="${y+4}" font-size="10" fill="#888" text-anchor="end">${v}</text>`;
+  }
+  // bars
+  vals.forEach((v,i)=>{
+    const x=padL+gap*i+(gap-bw)/2;
+    const bh=cH*v/1000, y=padT+cH-bh;
+    svg+=`<rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="3" fill="${colors[i]}"/>`;
+    svg+=`<text x="${x+bw/2}" y="${y-4}" font-size="9" fill="${colors[i]}" text-anchor="middle" font-weight="bold">${v}</text>`;
+    svg+=`<text x="${x+bw/2}" y="${H-padB+14}" font-size="10" fill="#555" text-anchor="middle">${cities[i]}</text>`;
+  });
+  // axes
+  svg+=`<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT+cH}" stroke="#bbb" stroke-width="1.5"/>`;
+  svg+=`<line x1="${padL}" y1="${padT+cH}" x2="${W-padR}" y2="${padT+cH}" stroke="#bbb" stroke-width="1.5"/>`;
+  svg+=`<text x="${W/2}" y="${H-2}" font-size="11" fill="#444" text-anchor="middle" font-weight="bold">도시별 인구 현황 (만 명)</text>`;
+  svg+=`</svg></div>`;
+  return svg;
+}
+
+selEx(0);
+
+/* ── 독립변수·종속변수 ── */
+const varExamples = [
+  {
+    icon:'📚', x:'공부 시간', y:'시험 성적',
+    explain:'공부 시간(X)을 늘릴수록 시험 성적(Y)이 올라가는 경향이 있다. 공부 시간은 연구자(학생)가 직접 조절할 수 있으므로 독립변수, 그 결과인 성적이 종속변수다.'
+  },
+  {
+    icon:'🌡️', x:'기온(°C)', y:'아이스크림 판매량',
+    explain:'기온(X)이 높아질수록 아이스크림 판매량(Y)이 증가한다. 기온은 자연현상으로 주어지는 독립변수이고, 판매량은 그에 따라 변하는 종속변수다.'
+  },
+  {
+    icon:'📺', x:'광고비 지출', y:'제품 매출액',
+    explain:'광고비(X)를 많이 투자할수록 제품 매출(Y)이 늘어나는 경향이 있다. 기업이 광고비를 결정하므로 독립변수, 그 결과로 달라지는 매출이 종속변수다.'
+  },
+  {
+    icon:'🏃', x:'운동 시간(분)', y:'체중 변화(kg)',
+    explain:'운동 시간(X)이 늘어날수록 체중(Y)이 감소하는 경향이 있다. 운동 시간은 개인이 선택·조절할 수 있으므로 독립변수, 그에 따라 변하는 체중이 종속변수다.'
+  },
+  {
+    icon:'😴', x:'수면 시간(시간)', y:'집중력 점수',
+    explain:'수면 시간(X)이 적절할수록 집중력(Y)이 높아진다. 수면 시간은 본인이 결정하는 독립변수, 그 결과로 나타나는 집중력이 종속변수다.'
+  }
+];
+
+function selVar(idx){
+  document.querySelectorAll('.var-ex-item').forEach((el,i)=>el.classList.toggle('sel',i===idx));
+  const e = varExamples[idx];
+  document.getElementById('varExFlow').innerHTML =
+    `<div style="display:flex;flex-direction:column;align-items:center;">
+       <div class="var-ex-box x">${e.icon} ${e.x}</div>
+       <div class="var-ex-label x">독립변수 (X)</div>
+     </div>
+     <div class="var-ex-arrow">→</div>
+     <div style="display:flex;flex-direction:column;align-items:center;">
+       <div class="var-ex-box y">${e.y}</div>
+       <div class="var-ex-label y">종속변수 (Y)</div>
+     </div>`;
+  document.getElementById('varExExplain').textContent = e.explain;
+}
+selVar(0);
+
+/* ── 상관계수 시각화 ── */
+let corrReady = false;
+function initCorr(){
+  if(corrReady) return;
+  corrReady = true;
+  updateCorr();
+}
+function updateCorr(){
+  const r  = document.getElementById('corrSlider').value / 100;
+  document.getElementById('corrVal').textContent = r.toFixed(2);
+  const interp = document.getElementById('corrInterp');
+  if(r >= 0.7)       { interp.textContent='강한 양의 상관관계'; interp.style.background='var(--primary-light)'; interp.style.color='var(--primary)'; }
+  else if(r >= 0.3)  { interp.textContent='약한 양의 상관관계'; interp.style.background='var(--teal-light)';    interp.style.color='var(--teal)'; }
+  else if(r > -0.3)  { interp.textContent='상관관계 없음';       interp.style.background='var(--border)';       interp.style.color='var(--text-sub)'; }
+  else if(r >= -0.7) { interp.textContent='약한 음의 상관관계'; interp.style.background='var(--gold-light)';   interp.style.color='var(--gold)'; }
+  else               { interp.textContent='강한 음의 상관관계'; interp.style.background='var(--red-light)';    interp.style.color='var(--red)'; }
+  drawScatter(r);
+}
+function drawScatter(r){
+  const canvas = document.getElementById('corrCanvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0,0,W,H);
+  // axes
+  ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(30,10); ctx.lineTo(30,H-20); ctx.lineTo(W-10,H-20); ctx.stroke();
+  // generate points
+  const pts = 40;
+  const seed = 42;
+  const lcg = (s=>()=>{ s=(1664525*s+1013904223)&0xffffffff; return (s>>>0)/0xffffffff; })(seed);
+  for(let i=0;i<pts;i++){
+    const x = lcg(), e = (lcg()-0.5)*2*Math.sqrt(1-r*r);
+    const y = r*x + e;
+    const px = 30 + (W-40)*x;
+    const py = (H-20) - (H-30)*((y+1.5)/3);
+    ctx.beginPath();
+    ctx.arc(px, Math.max(10,Math.min(H-20,py)), 4, 0, Math.PI*2);
+    ctx.fillStyle = r>=0 ? 'rgba(22,163,74,0.65)' : 'rgba(239,68,68,0.65)';
+    ctx.fill();
+  }
+}
+
+</script>
+</body>
+</html>
