@@ -2011,7 +2011,20 @@ function computeLZ78Steps(input){
         break;
       }
     }
-    // 입력 끝났는데 w가 남은 경우는 LZ78에서 발생하지 않음 (while문 내에서 항상 처리됨)
+    // 입력 끝났는데 w가 남은 경우: 마지막 매치가 사전에 있을 때 발생
+    if(w){
+      steps.push({
+        pos: i - w.length,
+        len: w.length,
+        matched: w,
+        newChar: '',
+        token: `(${matchIdx})`,
+        dictIdx: null,
+        dictEntry: null,
+        dictBefore: Object.keys(dict).length,
+        desc: `"<strong>${w}</strong>" 은 사전 <strong>#${matchIdx}</strong>에 매치 → 입력 끝 → 출력: <code>(${matchIdx})</code> <span style="color:var(--text3)">(새 항목 없음)</span>`
+      });
+    }
   }
   return steps;
 }
@@ -2105,7 +2118,10 @@ function lzNextStep(){
     // 설명 (출력 단계)
     if(desc){
       desc.style.color = 'var(--text)';
-      desc.innerHTML = `<span style="color:var(--teal);font-weight:700">단계 ${lzStep+1}/${LZ78_STEPS.length} — 출력</span> &nbsp; ${step.desc}<br><span style="color:var(--orange);font-size:13px;margin-top:4px;display:inline-block">▶ 다음 단계를 누르면 사전에 추가됩니다</span>`;
+      const phaseANext = step.dictEntry
+        ? '<br><span style="color:var(--orange);font-size:13px;margin-top:4px;display:inline-block">▶ 다음 단계를 누르면 사전에 추가됩니다</span>'
+        : '<br><span style="color:var(--green);font-size:13px;margin-top:4px;display:inline-block">✅ 입력 끝 — 사전 추가 없음</span>';
+      desc.innerHTML = `<span style="color:var(--teal);font-weight:700">단계 ${lzStep+1}/${LZ78_STEPS.length} — 출력</span> &nbsp; ${step.desc}${phaseANext}`;
     }
 
     // 버튼 텍스트 변경
@@ -2128,7 +2144,11 @@ function lzNextStep(){
     // 설명 (사전 추가 단계)
     if(desc){
       const isLast = lzStep === LZ78_STEPS.length - 1;
-      desc.innerHTML = `<span style="color:var(--teal);font-weight:700">단계 ${lzStep+1}/${LZ78_STEPS.length} — 사전 등록</span> &nbsp; <strong style="color:var(--teal)">"${step.dictEntry}"</strong> 을(를) 사전 <strong>#${step.dictIdx}</strong>에 등록했습니다.${isLast ? '<br><span style="color:var(--green);font-weight:700">✅ 압축 완료!</span>' : ''}`;
+      if(step.dictEntry){
+        desc.innerHTML = `<span style="color:var(--teal);font-weight:700">단계 ${lzStep+1}/${LZ78_STEPS.length} — 사전 등록</span> &nbsp; <strong style="color:var(--teal)">"${step.dictEntry}"</strong> 을(를) 사전 <strong>#${step.dictIdx}</strong>에 등록했습니다.${isLast ? '<br><span style="color:var(--green);font-weight:700">✅ 압축 완료!</span>' : ''}`;
+      } else {
+        desc.innerHTML = `<span style="color:var(--teal);font-weight:700">단계 ${lzStep+1}/${LZ78_STEPS.length} — 사전 등록 없음</span> &nbsp; 입력이 끝나 사전에 추가하지 않습니다.<br><span style="color:var(--green);font-weight:700">✅ 압축 완료!</span>`;
+      }
     }
 
     // 마지막 단계: 통계 표시
