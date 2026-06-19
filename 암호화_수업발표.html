@@ -2073,6 +2073,11 @@
         <div style="font-size:.78rem;color:var(--text-sub);text-align:center;padding:4px;border-radius:8px;background:var(--bg-sub);">
           같은 키로 역연산 <b style="color:var(--gold);">10번</b> 반복 → 원본 <b style="color:var(--green);">"helloworld2026!!"</b> 완벽 복원
         </div>
+
+        <div style="font-size:.74rem;color:var(--text-sub);line-height:1.5;padding:8px 10px;border-radius:8px;background:var(--bg-sub);border:1px dashed var(--border);">
+          💡 암호화는 ②③④① 순서였는데, 복호화는 정확히 거꾸로인 ①④③②가 아니라 <b style="color:var(--text);">③②④①</b> 순서로 진행됩니다. ②(치환)·③(행이동)은 서로 위치를 바꿔도 결과가 같고(commute), ④(열혼합)·①(키추가)도 키를 미리 보정해두면 순서를 바꿀 수 있기 때문입니다. 이렇게 바꾼 방식을 <b>"동등 역암호(Equivalent Inverse Cipher)"</b>라 부릅니다.<br><br>
+          ①④③②도 수학적으로는 똑같이 맞지만, 그러면 복호화 라운드 구조가 암호화(②③④①)와 완전히 달라져서 회로·코드를 따로 만들어야 합니다. ③②④①로 바꾸면 암호화·복호화가 <b>같은 라운드 구조</b>를 공유하게 되어, 치환표·혼합행렬·키만 바꿔 끼우는 식으로 같은 회로/코드를 재사용할 수 있습니다 — 그래서 실제 AES 표준(FIPS-197)도 이 방식을 채택했습니다.
+        </div>
       </div>
     </div>
 
@@ -3041,8 +3046,8 @@ const aesSteps = [
   }},
   { action: () => {
       aesSet(afterAR, true); aesRound.textContent='0';
-      aesUpdateCard('🔑','① 키 추가 (AddRoundKey)',
-        '비밀키에서 만든 라운드 키와 표를 XOR합니다. 마치 "첫 번째 자물쇠"를 채우는 단계입니다.',
+      aesUpdateCard('🔑','① 키 추가 (AddRoundKey, 라운드 0)',
+        '비밀키에서 만든 "라운드 0 키"와 표를 XOR합니다. 본격적인 라운드(②③④①)가 시작되기 전에 미리 한 번 채우는 사전 단계입니다.',
         1, 'var(--gold)');
   }},
   { action: () => {
@@ -3065,8 +3070,8 @@ const aesSteps = [
   }},
   { action: () => {
       aesSet(afterAR2, true); aesRound.textContent='1';
-      aesUpdateCard('🔑','① 키 추가 반복 (AddRoundKey)',
-        '라운드 키를 또 한 번 XOR합니다. ②③④① 4단계가 "1 라운드"입니다. 이걸 총 10번 반복!',
+      aesUpdateCard('🔑','① 키 추가 (AddRoundKey, 라운드 1 완료)',
+        '라운드 1 키와 XOR하면 ②③④①로 "라운드 1"이 끝납니다. 이 ②③④① 순서가 라운드 2~9까지 똑같이 9번 반복됩니다.',
         1, 'var(--gold)');
   }},
   { action: () => {
@@ -3177,8 +3182,8 @@ const aesDecSteps = [
   }},
   { action: () => {
       aesDecSet(decAfterIAR0, true); aesDecRound.textContent='10';
-      aesDecUpdateCard('🔑','① 역 키 추가 (InvAddRoundKey)',
-        '마지막 라운드 키와 XOR합니다. XOR은 같은 값을 두 번 적용하면 원래대로 돌아오므로 암호화와 동일한 연산입니다.',
+      aesDecUpdateCard('🔑','① 역 키 추가 (InvAddRoundKey, 라운드 10 키)',
+        '암호화의 마지막 키 추가를 되돌리는 단계로, 본격적인 역라운드(③②④①)가 시작되기 전에 먼저 수행합니다. XOR은 같은 값을 두 번 적용하면 원래대로 돌아오므로 암호화와 동일한 연산입니다.',
         1, 'var(--gold)');
   }},
   { action: () => {
@@ -3201,14 +3206,14 @@ const aesDecSteps = [
   }},
   { action: () => {
       aesDecSet(decAfterISR, true); aesDecRound.textContent='9';
-      aesDecUpdateCard('🔑','① 역 키 추가 반복',
-        '라운드 키와 XOR 후 ③②④① 패턴을 라운드 9 → 1까지 계속 반복합니다.',
+      aesDecUpdateCard('🔑','① 역 키 추가 (라운드 9 키)',
+        '라운드 9 키와 XOR하면 ③②④①로 역라운드 1회가 끝납니다. 이 ③②④① 순서가 라운드 9 → 1까지 9번 반복됩니다.',
         1, 'var(--gold)');
   }},
   { action: () => {
       aesDecSet(decAfterISB, true); aesDecRound.textContent='1';
       aesDecUpdateCard('⟳','라운드 8 ~ 1 반복',
-        '역방향 4단계를 9번 더 반복합니다. 매 라운드마다 암호화 때 입혀진 변환이 하나씩 벗겨집니다.',
+        '③②④① 역방향 4단계를 8번 더 반복합니다(라운드 9는 앞에서 완료). 매 라운드마다 암호화 때 입혀진 변환이 하나씩 벗겨집니다.',
         0, 'var(--text-sub)');
   }},
   { action: () => {
