@@ -1747,6 +1747,19 @@ document.addEventListener('keydown',e=>{
   if(e.key==='ArrowRight'||e.key==='ArrowDown')changeSlide(1);
   if(e.key==='ArrowLeft'||e.key==='ArrowUp')changeSlide(-1);
 });
+
+/* ── 터치 스와이프(태블릿) 슬라이드 전환 ── */
+let touchStartX = 0;
+document.addEventListener('touchstart', e=>{
+  if (e.target.closest('input, button, a, select, textarea, #pixel-grid')) { touchStartX = null; return; }
+  touchStartX = e.touches[0].clientX;
+});
+document.addEventListener('touchend', e=>{
+  if (touchStartX === null) return;
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  if (dx < -40) changeSlide(1);
+  if (dx >  40) changeSlide(-1);
+});
 function checkQ(btn,type){
   const opts=btn.closest('.quiz-opts').querySelectorAll('.quiz-opt');
   opts.forEach(o=>{o.disabled=true;o.classList.remove('correct','wrong')});

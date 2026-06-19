@@ -1206,7 +1206,6 @@
 <div class="progress-bar" id="pbar"></div>
 <div class="slide-num" id="slideNum">1 / 13</div>
 <div class="nav-hint">
-  <button class="nav-btn" onclick="go(-1)">◀</button>
   <kbd>←</kbd><span>이전</span> / <span>다음</span><kbd>→</kbd>
   <button class="nav-btn" onclick="go(1)">▶</button>
 </div>
@@ -1232,6 +1231,19 @@ function go(d){ showSlide(cur+d); }
 document.addEventListener('keydown', e=>{
   if(e.key==='ArrowRight'||e.key==='ArrowDown') go(1);
   if(e.key==='ArrowLeft' ||e.key==='ArrowUp')   go(-1);
+});
+
+/* ── 터치 스와이프(태블릿) 슬라이드 전환 ── */
+let touchStartX = 0;
+document.addEventListener('touchstart', e=>{
+  if (e.target.closest('input, button, a, select, textarea')) { touchStartX = null; return; }
+  touchStartX = e.touches[0].clientX;
+});
+document.addEventListener('touchend', e=>{
+  if (touchStartX === null) return;
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  if (dx < -40) go(1);
+  if (dx >  40) go(-1);
 });
 
 /* ── 초기 진행바 & 슬라이드 번호 ── */

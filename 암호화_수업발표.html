@@ -42,7 +42,8 @@
   .slide {
     position: absolute; inset: 0;
     display: flex; flex-direction: column;
-    justify-content: center; align-items: center;
+    justify-content: center; justify-content: safe center;
+    align-items: center;
     padding: 36px 60px;
     opacity: 0; pointer-events: none;
     transform: translateX(50px);
@@ -2511,113 +2512,6 @@
     </table>
   </div>
 
-  <!-- ─────────────────────────────────────────────
-       11. ECC 애니메이션
-       ───────────────────────────────────────────── -->
-  <div class="slide" id="s11">
-    <div class="algo-header">
-      <div class="tag">대표 알고리즘 ④</div>
-      <h2><span>ECC</span> — Elliptic Curve Cryptography</h2>
-      <p class="algo-desc">타원 곡선의 수학적 성질을 이용한 공개키 암호 · <b>RSA보다 짧은 키로 동일한 보안 강도</b> 제공</p>
-    </div>
-    <div class="algo-stage">
-      <svg class="ecc-canvas" viewBox="-2.6 -3 6 6" preserveAspectRatio="xMidYMid meet">
-        <g transform="scale(1,-1)">
-          <!-- 축 -->
-          <line class="axis" x1="-2.6" y1="0" x2="3.4" y2="0"/>
-          <line class="axis" x1="0" y1="-3" x2="0" y2="3"/>
-          <!-- 곡선: y² = x³ - x  (두 개의 부분) -->
-          <path class="curve" id="ecc-curve" d="" style="opacity:0;transition:opacity .4s;"/>
-          <!-- 보조 선 (P+Q 시각화) -->
-          <line class="construction" id="ecc-line-pq" x1="0" y1="0" x2="0" y2="0"/>
-          <line class="construction" id="ecc-vline" x1="0" y1="0" x2="0" y2="0"/>
-          <!-- 점들 -->
-          <g id="ecc-points"></g>
-        </g>
-      </svg>
-      <div class="aes-label" style="margin-top:6px;">현재 단계: <b id="ecc-stage">대기 중</b></div>
-    </div>
-    <div class="step-display" id="ecc-desc">▶ '다음 단계' 버튼으로 타원 곡선 위의 점 연산을 살펴보세요.</div>
-    <div class="controls">
-      <button class="btn btn-primary" onclick="ECC.next()">다음 단계 ▶</button>
-      <button class="btn btn-secondary" onclick="ECC.reset()">↻ 처음으로</button>
-      <div class="progress-dots" id="ecc-dots"></div>
-    </div>
-  </div>
-
-  <!-- ─────────────────────────────────────────────
-       8. DES 애니메이션
-       ───────────────────────────────────────────── -->
-  <div class="slide" id="s8">
-    <div class="algo-header">
-      <div class="tag">대표 알고리즘 ①</div>
-      <h2><span>DES</span> — Data Encryption Standard</h2>
-      <p class="algo-desc">1977년 미국 표준 채택 · 64비트 블록을 <b>16라운드 페이스텔(Feistel) 구조</b>로 암호화하는 대칭키 알고리즘</p>
-    </div>
-    <div class="algo-stage">
-      <div class="des-block" id="des-block">평문 / 암호문 (64-bit)</div>
-      <div class="des-halves">
-        <div class="des-half L" id="des-L">
-          <div class="label">L (32-bit)</div>
-          <div id="des-L-val">—</div>
-        </div>
-        <div class="des-half R" id="des-R">
-          <div class="label">R (32-bit)</div>
-          <div id="des-R-val">—</div>
-        </div>
-      </div>
-      <div class="des-fbox" id="des-fbox">F(R, Kᵢ) 계산 → L과 XOR → 좌우 스왑</div>
-      <div class="des-round-info">현재 라운드: <b id="des-round">0</b> / 16</div>
-    </div>
-    <div class="step-display" id="des-desc">▶ '다음 단계' 버튼을 눌러 DES 암호화 과정을 살펴보세요.</div>
-    <div class="controls">
-      <button class="btn btn-primary" onclick="DES.next()">다음 단계 ▶</button>
-      <button class="btn btn-secondary" onclick="DES.reset()">↻ 처음으로</button>
-      <div class="progress-dots" id="des-dots"></div>
-    </div>
-  </div>
-
-  <!-- ─────────────────────────────────────────────
-       10. RSA 애니메이션
-       ───────────────────────────────────────────── -->
-  <!-- 11b. ECC 특징과 활용 -->
-  <div class="slide" id="s11b">
-    <div class="tag">대표 알고리즘 ④</div>
-    <h2>ECC의 <span>특징과 활용</span></h2>
-    <div class="divider"></div>
-    <table style="max-width:760px;width:100%;margin-bottom:16px;">
-      <thead>
-        <tr><th>보안 강도</th><th>RSA 키 길이</th><th>ECC 키 길이</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>80-bit</td><td>1,024 bit</td><td style="color:var(--green);font-weight:700;">160 bit</td></tr>
-        <tr><td>112-bit</td><td>2,048 bit</td><td style="color:var(--green);font-weight:700;">224 bit</td></tr>
-        <tr><td>128-bit</td><td>3,072 bit</td><td style="color:var(--green);font-weight:700;">256 bit</td></tr>
-        <tr><td>256-bit</td><td>15,360 bit</td><td style="color:var(--green);font-weight:700;">521 bit</td></tr>
-      </tbody>
-    </table>
-    <div class="card-grid cols-3" style="max-width:900px;">
-      <div class="card" style="text-align:center;">
-        <span class="icon-lg">💰</span>
-        <div class="badge b-gold">암호화폐</div>
-        <p>Bitcoin · Ethereum 블록체인에서 지갑 생성과 디지털 서명에 활용</p>
-      </div>
-      <div class="card" style="text-align:center;">
-        <span class="icon-lg">🌐</span>
-        <div class="badge b-blue">TLS 1.3</div>
-        <p>최신 HTTPS 통신 보안 프로토콜의 기본 키 교환 알고리즘으로 채택</p>
-      </div>
-      <div class="card" style="text-align:center;">
-        <span class="icon-lg">📱</span>
-        <div class="badge b-purple">모바일 · IoT</div>
-        <p>스마트폰 · 스마트카드 · IoT 기기 등 제한된 환경에 최적화</p>
-      </div>
-    </div>
-    <div class="info-box" style="margin-top:14px;">
-      ✅ 같은 보안 강도를 <strong>훨씬 짧은 키</strong>로 달성 → 연산 속도 ↑, 전력 소비 ↓, 모바일 환경에 적합
-    </div>
-  </div>
-
   <!-- 14. 활용 사례 -->
   <div class="slide" id="s14">
     <div class="tag">3. 암호화의 활용 사례</div>
@@ -2925,8 +2819,12 @@ document.addEventListener('keydown', e => {
 });
 
 let tx = 0;
-document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; });
+document.addEventListener('touchstart', e => {
+  if (e.target.closest('input, button, a, select, textarea')) { tx = null; return; }
+  tx = e.touches[0].clientX;
+});
 document.addEventListener('touchend',   e => {
+  if (tx === null) return;
   const dx = e.changedTouches[0].clientX - tx;
   if (dx < -40) goTo(current + 1);
   if (dx >  40) goTo(current - 1);
@@ -2981,37 +2879,6 @@ function makeController(prefix, steps, dotCount) {
   ctrl.apply();
   return ctrl;
 }
-
-/* ─────────────────────────────────────────
-   DES 애니메이션
-   ───────────────────────────────────────── */
-const desBlock = document.getElementById('des-block');
-const desL = document.getElementById('des-L-val');
-const desR = document.getElementById('des-R-val');
-const desRound = document.getElementById('des-round');
-const desFbox = document.getElementById('des-fbox');
-
-const desSteps = [
-  { desc: "▶ '다음 단계'를 눌러 DES 암호화를 시작합니다.",
-    action: () => { desBlock.textContent='평문 / 암호문 (64-bit)'; desBlock.classList.remove('cipher'); desL.textContent='—'; desR.textContent='—'; desRound.textContent='0'; desFbox.classList.remove('shown'); } },
-  { desc: "① 64비트 평문 블록이 입력됩니다.",
-    action: () => { desBlock.textContent='평문: 0123 4567 89AB CDEF'; desBlock.classList.remove('cipher'); desL.textContent='—'; desR.textContent='—'; desFbox.classList.remove('shown'); desRound.textContent='0'; } },
-  { desc: "② 초기 순열(IP)을 적용하여 비트 순서를 재배열합니다.",
-    action: () => { desBlock.textContent='IP 적용 후: CC00 CCFF F0AA F0AA'; desL.textContent='—'; desR.textContent='—'; desFbox.classList.remove('shown'); } },
-  { desc: "③ 블록을 좌측 L₀(32bit)와 우측 R₀(32bit)로 나눕니다.",
-    action: () => { desL.textContent='CC00 CCFF'; desR.textContent='F0AA F0AA'; desFbox.classList.remove('shown'); } },
-  { desc: "④ 라운드 키 K₁로 F함수를 적용: F(R₀, K₁)을 계산합니다.",
-    action: () => { desFbox.classList.add('shown'); desRound.textContent='1'; } },
-  { desc: "⑤ L₁ = R₀ ,  R₁ = L₀ ⊕ F(R₀, K₁)  → 좌우 교환 완료!",
-    action: () => { desL.textContent='F0AA F0AA'; desR.textContent='3C8F A572'; desRound.textContent='1'; desFbox.classList.add('shown'); } },
-  { desc: "⑥ 같은 과정을 라운드 2 ~ 15까지 반복 수행합니다.",
-    action: () => { desL.textContent='9A2D B14C'; desR.textContent='6FE3 0871'; desRound.textContent='15'; desFbox.classList.add('shown'); } },
-  { desc: "⑦ 라운드 16까지 완료 후 좌우 교환 → 최종 순열(FP) 적용.",
-    action: () => { desL.textContent='6FE3 0871'; desR.textContent='9A2D B14C'; desRound.textContent='16'; desFbox.classList.add('shown'); } },
-  { desc: "🎉 완료! 64비트 암호문이 출력되었습니다.",
-    action: () => { desBlock.textContent='암호문: 85E8 1354 0F0A B405'; desBlock.classList.add('cipher'); desL.textContent='—'; desR.textContent='—'; desFbox.classList.remove('shown'); } }
-];
-const DES = makeController('des', desSteps, 9);
 
 /* ─────────────────────────────────────────
    AES 애니메이션
@@ -3500,93 +3367,6 @@ function factorDemo() {
   }
   next(0);
 }
-
-/* ─────────────────────────────────────────
-   ECC 애니메이션
-   ───────────────────────────────────────── */
-// 타원 곡선 y² = x³ - x 의 path 데이터 생성
-function buildECCPath() {
-  let leftLoop = '';
-  // 왼쪽 closed loop: x ∈ [-1, 0]
-  for (let x = -1; x <= 0.001; x += 0.025) {
-    const y2 = x*x*x - x;
-    if (y2 < 0) continue;
-    const y = Math.sqrt(y2);
-    leftLoop += (leftLoop === '' ? 'M ' : 'L ') + x.toFixed(3) + ' ' + (-y).toFixed(3) + ' ';
-  }
-  for (let x = 0; x >= -1.001; x -= 0.025) {
-    const y2 = x*x*x - x;
-    if (y2 < 0) continue;
-    const y = Math.sqrt(y2);
-    leftLoop += 'L ' + x.toFixed(3) + ' ' + y.toFixed(3) + ' ';
-  }
-  leftLoop += 'Z ';
-
-  let rightTop = 'M ';
-  let rightBot = 'M ';
-  for (let x = 1; x <= 2.7; x += 0.025) {
-    const y2 = x*x*x - x;
-    if (y2 < 0) continue;
-    const y = Math.sqrt(y2);
-    rightTop += x.toFixed(3) + ' ' + (-y).toFixed(3) + ' ' + (x===1 ? '' : 'L ');
-  }
-  for (let x = 1; x <= 2.7; x += 0.025) {
-    const y2 = x*x*x - x;
-    if (y2 < 0) continue;
-    const y = Math.sqrt(y2);
-    rightBot += x.toFixed(3) + ' ' + y.toFixed(3) + ' ' + (x===1 ? '' : 'L ');
-  }
-  return leftLoop + rightTop + rightBot;
-}
-document.getElementById('ecc-curve').setAttribute('d', buildECCPath());
-
-const eccPointsEl = document.getElementById('ecc-points');
-const eccStage = document.getElementById('ecc-stage');
-const eccCurve = document.getElementById('ecc-curve');
-const eccLinePQ = document.getElementById('ecc-line-pq');
-const eccVline = document.getElementById('ecc-vline');
-
-function eccClearPts() { eccPointsEl.innerHTML = ''; eccLinePQ.classList.remove('shown'); eccVline.classList.remove('shown'); }
-function eccAddPt(x, y, label, color = 'var(--red)') {
-  const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
-  c.setAttribute('cx', x); c.setAttribute('cy', y);
-  c.setAttribute('r', '0.09'); c.setAttribute('fill', color);
-  eccPointsEl.appendChild(c);
-  const t = document.createElementNS('http://www.w3.org/2000/svg','text');
-  t.setAttribute('x', x + 0.15); t.setAttribute('y', -y - 0.15);
-  t.setAttribute('transform', 'scale(1,-1)');
-  t.setAttribute('font-family', "'Gmarket Sans', sans-serif");
-  t.setAttribute('font-size', '0.22');
-  t.setAttribute('font-weight', '700');
-  t.setAttribute('fill', color);
-  t.textContent = label;
-  eccPointsEl.appendChild(t);
-}
-function eccLine(x1, y1, x2, y2, el) {
-  el.setAttribute('x1', x1); el.setAttribute('y1', y1);
-  el.setAttribute('x2', x2); el.setAttribute('y2', y2);
-  el.classList.add('shown');
-}
-
-const eccSteps = [
-  { desc: "▶ ECC를 시작합니다. 타원 곡선 y² = x³ - x를 살펴보세요.",
-    action: () => { eccCurve.style.opacity = '0'; eccClearPts(); eccStage.textContent='대기 중'; } },
-  { desc: "① 타원 곡선이 그려졌습니다. ECC는 이런 곡선 위의 점들을 이용합니다.",
-    action: () => { eccCurve.style.opacity = '1'; eccClearPts(); eccStage.textContent='곡선 정의: y² = x³ - x'; } },
-  { desc: "② 곡선 위의 두 점 P와 Q를 선택합니다.",
-    action: () => { eccClearPts(); eccAddPt(1.5, -1.37, 'P', 'var(--primary)'); eccAddPt(2.2, 2.49, 'Q', 'var(--primary)'); eccStage.textContent='두 점 P, Q 선택'; } },
-  { desc: "③ P와 Q를 잇는 직선이 곡선과 만나는 세 번째 점을 찾습니다.",
-    action: () => { eccClearPts(); eccAddPt(1.5, -1.37, 'P', 'var(--primary)'); eccAddPt(2.2, 2.49, 'Q', 'var(--primary)'); eccLine(1.0, -3.13, 2.5, 5.51, eccLinePQ); eccAddPt(1.18, -0.62, '-R', 'var(--gold)'); eccStage.textContent='직선과 곡선의 교점'; } },
-  { desc: "④ 교점의 y좌표를 반전시킨 점이 P + Q = R 입니다. (ECC의 점 덧셈!)",
-    action: () => { eccClearPts(); eccAddPt(1.5, -1.37, 'P', 'var(--primary)'); eccAddPt(2.2, 2.49, 'Q', 'var(--primary)'); eccLine(1.0, -3.13, 2.5, 5.51, eccLinePQ); eccAddPt(1.18, -0.62, '-R', 'var(--gold)'); eccLine(1.18, -0.62, 1.18, 0.62, eccVline); eccAddPt(1.18, 0.62, 'R = P+Q', 'var(--red)'); eccStage.textContent='P + Q = R'; } },
-  { desc: "⑤ 같은 점을 자기 자신과 더하면(2P, 3P, ...), 새 점이 계속 생성됩니다.",
-    action: () => { eccClearPts(); eccAddPt(1.5, -1.37, 'P', 'var(--primary)'); eccAddPt(1.18, 0.62, '2P', 'var(--red)'); eccAddPt(2.5, -3.49, '3P', 'var(--purple)'); eccStage.textContent='스칼라 곱 kP'; } },
-  { desc: "⑥ 개인키 k(난수)를 정하고, 공개키 Q = kG를 계산합니다. (정방향은 쉬움)",
-    action: () => { eccClearPts(); eccAddPt(-1, 0, 'G', 'var(--primary)'); eccAddPt(1.5, -1.37, '2G', 'var(--gold)'); eccAddPt(1.18, 0.62, '3G', 'var(--red)'); eccAddPt(2.5, -3.49, 'Q = kG', 'var(--purple)'); eccStage.textContent='공개키 Q = kG 생성'; } },
-  { desc: "🎉 핵심! Q와 G로부터 k를 역산하는 건 매우 어렵습니다 → ECC의 안전성!",
-    action: () => { eccClearPts(); eccAddPt(-1, 0, 'G (공개)', 'var(--primary)'); eccAddPt(2.5, -3.49, 'Q (공개)', 'var(--purple)'); eccStage.textContent='k는 비밀! → 보안성 확보'; } }
-];
-const ECC = makeController('ecc', eccSteps, 8);
 
 /* ─────────────────────────────────────────
    암호화 흐름 인터랙션 (s3 화살표 클릭)
